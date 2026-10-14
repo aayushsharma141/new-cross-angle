@@ -5,7 +5,9 @@ import { Instagram, Youtube, Linkedin, Twitter, Facebook } from "lucide-react";
 import { useDynamicCTA } from "@/hooks/useDynamicCTA";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { navLinks } from "@/config/navigation";
-import { SERVICE_BANDS } from "@/config/service-area";
+import { useSiteContent } from "@/content/useSiteContent";
+import { resolveFooterCopy } from "@/content/footerCopy";
+import type { FooterCta } from "@/content/types";
 
 const EASE_OUT_CUBIC = [0.33, 1, 0.68, 1] as const;
 
@@ -40,92 +42,21 @@ const EASE_OUT_CUBIC = [0.33, 1, 0.68, 1] as const;
  * - Consistent focus ring styling
  * - Enhanced reveal delay timing for staggered entrance
  */
-const getFooterCopy = (pathname: string, cta: ReturnType<typeof useDynamicCTA>["cta"]) => {
+const getFooterCopy = (
+  pathname: string,
+  cta: ReturnType<typeof useDynamicCTA>["cta"],
+  editable: FooterCta,
+) => {
   if (pathname === "/") {
     return cta;
   }
-
-  if (pathname.startsWith("/services/")) {
-    return {
-      ...cta,
-      headlineStart: "Ready to",
-      headlineHighlight: "start planning?",
-      sub: "Tell us what you need, and we'll translate it into a clear design and execution plan.",
-    };
-  }
-
-  if (pathname.startsWith("/portfolio/")) {
-    return {
-      ...cta,
-      headlineStart: "Want a space",
-      headlineHighlight: "like this?",
-      sub: "Share your space and timeline. We'll help you figure out the next practical move.",
-    };
-  }
-
-  const pageCopy: Record<string, Partial<typeof cta>> = {
-    "/about-us": {
-      headlineStart: "Like what you see?",
-      headlineHighlight: "Let's talk.",
-      sub: "If you like our approach, let's turn the conversation into a precise project plan.",
-    },
-    "/services": {
-      headlineStart: "Choose your service,",
-      headlineHighlight: "then build the plan.",
-      sub: "From home interiors to office designs, we help you understand everything before you commit.",
-    },
-    "/portfolio": {
-      headlineStart: "Seen the work?",
-      headlineHighlight: "Now shape yours.",
-      sub: "Use our past work as a starting point. We'll help bring that same luxury to your own space.",
-      btn1: "Book 15-Min Discovery Call",
-      btn1Link: "/contact-us",
-    },
-    "/gallery": {
-      headlineStart: "Save the inspiration.",
-      headlineHighlight: "Start the plan.",
-      sub: "Send us the rooms and moods you love, and we'll turn them into a practical plan for your home.",
-    },
-    "/blog": {
-      headlineStart: "Ideas are useful.",
-      headlineHighlight: "Execution makes them real.",
-      sub: "If an article sparked an idea, our team can help turn that thought into a real project.",
-    },
-    "/contact-us": {
-      headlineStart: "You are already here.",
-      headlineHighlight: "Let's connect.",
-      sub: "Share your needs once, and we'll come back with clear next steps and a consultation path.",
-    },
-    "/estimate": {
-      headlineStart: "Have an estimate?",
-      headlineHighlight: "Let's make it real.",
-      sub: "Use your estimate as the first draft. We'll help refine it into a realistic plan of action.",
-    },
-    "/aesthetic-discovery-engine": {
-      headlineStart: "Found your style?",
-      headlineHighlight: "Let's build it.",
-      sub: "Your design choices are the beginning. We can translate them into materials, lighting, and layout.",
-    },
-    "/blueprint": {
-      headlineStart: "From blueprint to",
-      headlineHighlight: "built experience.",
-      sub: "Use our strategy as a starting point, then let us handle the hard work of building it.",
-    },
-  };
-
   return {
     ...cta,
-    ...(pageCopy[pathname] || {
-      headlineStart: "Ready to",
-      headlineHighlight: "get started?",
-      sub: "Tell us what you need, and we'll help you take the next step.",
-    }),
+    ...resolveFooterCopy(editable, pathname),
+    // The portfolio index swaps the primary button for a discovery call.
+    ...(pathname === "/portfolio" ? { btn1: "Book 15-Min Discovery Call", btn1Link: "/contact-us" } : {}),
   };
 };
-
-// Local-SEO landing pages; kept as a single quiet line rather than a column
-/** Jamshedpur's own districts — every one is an anchor on /locations. */
-const FOOTER_AREAS = SERVICE_BANDS.find((b) => b.id === "jamshedpur")?.areas ?? [];
 
 const SOCIALS: { key: string; name: string; Icon: React.ElementType }[] = [
   { key: "instagram", name: "Instagram", Icon: Instagram },
@@ -153,9 +84,13 @@ const legalLink =
  * `primary` token rather than theme-following foreground tokens.
  */
 export default function Footer() {
+  const { bands } = useSiteContent("locations.areas");
+  /** Jamshedpur's own districts — every one is an anchor on /locations. */
+  const FOOTER_AREAS = bands.find((b) => b.id === "jamshedpur")?.areas ?? [];
   const { cta } = useDynamicCTA();
   const location = useLocation();
-  const footerCopy = getFooterCopy(location.pathname, cta);
+  const footerCta = useSiteContent("site.footer_cta");
+  const footerCopy = getFooterCopy(location.pathname, cta, footerCta);
   const { settings } = useSiteSettings();
 
   const email = settings?.email || "info@crossangleinterior.com";

@@ -45,3 +45,7 @@ skills-lock.json
 
 # Local audit evidence (disposable)
 e2e/audit-evidence/
+
+# graft's local graph cache — regenerable, not committed (run `graft build`).
+/graft/
+.superdesign

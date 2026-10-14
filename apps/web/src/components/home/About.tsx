@@ -1,9 +1,9 @@
 import { ScrollReveal } from "../ui/enhanced/scroll-reveal";
 import { Image } from "@/components/ui/enhanced/image";
-import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { useStudioStats } from "@/hooks/useSiteSettings";
 
 export const About = () => {
-  const { settings } = useSiteSettings();
+  const studio = useStudioStats();
   return (
     <section id="about" className="py-section-y bg-kiro-bg-section border-t border-white/5 relative overflow-hidden">
       <div className="container mx-auto relative z-10 px-4 max-w-5xl">
@@ -50,15 +50,15 @@ export const About = () => {
               {/* Inline stats */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-8 mt-8 border-t border-white/5">
                 <div>
-                  <span className="block text-2xl font-serif font-bold text-white">{settings?.studio_stats?.yearsExperience || 15}+</span>
+                  <span className="block text-2xl font-serif font-bold text-white">{studio.yearsExperience}+</span>
                   <span className="block text-[9px] uppercase tracking-widest text-white/40 mt-1 font-mono">Years Exp</span>
                 </div>
                 <div>
-                  <span className="block text-2xl font-serif font-bold text-white">{settings?.studio_stats?.happyClients || 500}+</span>
+                  <span className="block text-2xl font-serif font-bold text-white">{studio.happyClients}+</span>
                   <span className="block text-[9px] uppercase tracking-widest text-white/40 mt-1 font-mono">Happy Homes</span>
                 </div>
                 <div>
-                  <span className="block text-2xl font-serif font-bold text-white">{settings?.studio_stats?.projectsCompleted || 750}+</span>
+                  <span className="block text-2xl font-serif font-bold text-white">{studio.projectsCompleted}+</span>
                   <span className="block text-[9px] uppercase tracking-widest text-white/40 mt-1 font-mono">Projects Done</span>
                 </div>
                 <div>

@@ -167,12 +167,15 @@ export default function AdminBlogPerformance() {
     const topArticle = articles.length
         ? articles.reduce((best, a) => ((a.views || 0) > (best.views || 0) ? a : best), articles[0])
         : null;
-    const avgScroll = articles.length
-        ? Math.round(articles.reduce((s, a) => s + (a.scroll_depth || 0), 0) / articles.length)
+    // Average only articles with measurements; unmeasured ones would drag the mean toward 0.
+    const scrolled = articles.filter((a) => (a.scroll_depth || 0) > 0);
+    const avgScroll = scrolled.length
+        ? Math.round(scrolled.reduce((s, a) => s + a.scroll_depth, 0) / scrolled.length)
         : 0;
 
-    const avgReadTime = articles.length
-        ? Math.round(articles.reduce((s, a) => s + (a.read_time || 0), 0) / articles.length)
+    const timed = articles.filter((a) => (a.read_time || 0) > 0);
+    const avgReadTime = timed.length
+        ? Math.round(timed.reduce((s, a) => s + a.read_time, 0) / timed.length)
         : 0;
 
     if (loading) {

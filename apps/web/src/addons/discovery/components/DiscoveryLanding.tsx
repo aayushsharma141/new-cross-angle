@@ -69,7 +69,7 @@ function UnifiedDashboard() {
       {/* Top Zone: DNA Bars */}
       <motion.div variants={containerVariants} initial="hidden" whileInView="show" viewport={{ once: true }} className="bg-white border border-[#e8e4dd] p-8 rounded-2xl shadow-sm">
         <div className="mb-6">
-          <span className="text-[10px] font-mono tracking-widest text-[#70593a] uppercase font-bold">01 / The Science</span>
+          <span className="text-[12px] font-mono tracking-widest text-[#70593a] uppercase font-bold">01 / The Science</span>
           <h2 className="text-2xl font-serif text-[#1a1a1a] mt-2">Your Aesthetic DNA</h2>
         </div>
         <div className="flex flex-col gap-5">
@@ -95,13 +95,13 @@ function UnifiedDashboard() {
       <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }} className="bg-[#1a1a1a] text-white p-8 rounded-2xl shadow-xl overflow-hidden relative">
         <div className="absolute top-0 right-0 w-64 h-64 bg-[#c9a96e]/10 blur-[80px] rounded-full translate-x-1/2 -translate-y-1/2 pointer-events-none" />
         <div className="relative z-10">
-          <span className="text-[10px] font-mono tracking-widest text-[#c9a96e] uppercase font-bold mb-4 block">02 / The Outcome</span>
+          <span className="text-[12px] font-mono tracking-widest text-[#c9a96e] uppercase font-bold mb-4 block">02 / The Outcome</span>
           <h3 className="text-3xl font-serif mb-2">The Warm Modernist</h3>
           <p className="text-sm text-zinc-400 font-light mb-8 max-w-sm">"I want clean lines that don't feel cold, and minimalism that still feels human."</p>
           
           <div className="flex items-end justify-between">
             <div>
-              <span className="text-[9px] font-mono tracking-widest text-zinc-500 uppercase mb-3 block">Core Palette</span>
+              <span className="text-[12px] font-mono tracking-widest text-kiro-inkSoft uppercase mb-3 block">Core Palette</span>
               <div className="flex gap-2">
                 {["#e5e0d8", "#c2b4a3", "#80643e", "#2a2825"].map(hex => (
                   <div key={hex} className="w-8 h-8 rounded-full border border-white/10" style={{ backgroundColor: hex }} />
@@ -109,7 +109,7 @@ function UnifiedDashboard() {
               </div>
             </div>
             <div className="text-right">
-              <span className="text-[9px] font-mono tracking-widest text-zinc-500 uppercase mb-1 block">Material Bias</span>
+              <span className="text-[12px] font-mono tracking-widest text-kiro-inkSoft uppercase mb-1 block">Material Bias</span>
               <span className="text-xs font-medium text-zinc-300">Walnut & Boucle</span>
             </div>
           </div>
@@ -119,7 +119,7 @@ function UnifiedDashboard() {
       {/* Bottom Zone: Deliverables Grid */}
       <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }}>
         <div className="mb-6">
-          <span className="text-[10px] font-mono tracking-widest text-[#70593a] uppercase font-bold">03 / The Blueprint</span>
+          <span className="text-[12px] font-mono tracking-widest text-[#70593a] uppercase font-bold">03 / The Blueprint</span>
           <h2 className="text-2xl font-serif text-[#1a1a1a] mt-2">What You Receive</h2>
         </div>
         <div className="grid grid-cols-2 gap-4">
@@ -127,7 +127,7 @@ function UnifiedDashboard() {
             <div key={i} className="bg-white border border-[#e8e4dd] p-5 rounded-xl hover:shadow-sm transition-shadow group cursor-default">
               <item.icon size={20} className="text-[#c9a96e] mb-3 group-hover:scale-110 transition-transform" />
               <h4 className="text-sm font-medium text-[#1a1a1a] mb-1">{item.title}</h4>
-              <p className="text-[11px] text-[#5a5a5a] font-light">{item.desc}</p>
+              <p className="text-[12px] text-[#5a5a5a] font-light">{item.desc}</p>
             </div>
           ))}
         </div>
@@ -163,7 +163,7 @@ function IntentOverlay({
           <X size={18} />
         </button>
 
-        <span className="text-[10px] font-mono tracking-[0.35em] uppercase text-[#70593a] bg-[#70593a]/10 px-4 py-1.5 rounded-full font-bold shadow-sm mb-6">
+        <span className="text-[12px] font-mono tracking-[0.35em] uppercase text-[#70593a] bg-[#70593a]/10 px-4 py-1.5 rounded-full font-bold shadow-sm mb-6">
           {lang === "hi" ? "STAGE 01 — INTENT" : "STAGE 01 — INTENT"}
         </span>
 
@@ -186,7 +186,7 @@ function IntentOverlay({
             >
               <div className="absolute inset-0 bg-gradient-to-br from-[#c9a96e]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
               <div className="flex justify-between items-start relative z-10">
-                <span className="text-[9px] font-mono tracking-[0.25em] uppercase text-[#70593a] font-bold group-hover:translate-x-1 transition-transform mt-1">
+                <span className="text-[12px] font-mono tracking-[0.25em] uppercase text-[#70593a] font-bold group-hover:translate-x-1 transition-transform mt-1">
                   {intent.short}
                 </span>
                 <div className="p-1.5 bg-[#faf8f5] rounded-full group-hover:bg-white group-hover:shadow-sm transition-all duration-300 text-[#70593a]/70 group-hover:text-[#70593a]">
@@ -282,7 +282,7 @@ export default function DiscoveryLanding({ onStart }: DiscoveryLandingProps) {
           onClick={() => setLang(l)}
           aria-current={lang === l ? "true" : undefined}
           className={cn(
-            "px-4 py-1.5 text-[9px] font-bold uppercase tracking-[0.2em] transition-colors duration-300",
+            "px-4 py-1.5 text-[12px] font-bold uppercase tracking-[0.2em] transition-colors duration-300",
             lang === l
               ? "bg-[var(--ws-gold)] text-black"
               : "text-[var(--ws-muted)] hover:text-[var(--ws-ink)]",

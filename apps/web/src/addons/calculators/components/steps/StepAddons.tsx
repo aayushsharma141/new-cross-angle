@@ -78,7 +78,7 @@ export function StepAddons({ formData, updateField }: Props) {
                             key={addon.id}
                             title={`Add ${addon.label}`}
                             onClick={() => toggleAddon(addon.id)}
-                            className={`${selectableCardClassLight(active, "group p-4 text-left hover:-translate-y-0.5 active:scale-95 transition-transform duration-200")} ${active ? "bg-[#7a5c30]/[0.12]" : "bg-white/70 hover:bg-[#7a5c30]/[0.05]"}`}
+                            className={`${selectableCardClassLight(active, "group p-4 text-left hover:-translate-y-0.5 active:scale-95 transition-transform duration-200")} ${active ? "bg-kiro-accent/[0.12]" : "bg-white/70 hover:bg-kiro-accent/[0.05]"}`}
                         >
                             {active && (
                                 <span
@@ -89,7 +89,7 @@ export function StepAddons({ formData, updateField }: Props) {
                             
                             <div className="flex justify-between items-start mb-3 relative z-10">
                                 <span className="text-kiro-accent drop-shadow-sm">{AddonIconMap[addon.id] || addon.icon}</span>
-                                <span className={`text-[9px] font-bold px-2 py-0.5 uppercase tracking-wider transition-colors ${active ? "bg-kiro-accent text-white" : "bg-kiro-ink/10 text-kiro-inkSoft"
+                                <span className={`text-[11px] font-bold px-2 py-0.5 uppercase tracking-wider transition-colors ${active ? "bg-kiro-accent text-white" : "bg-kiro-ink/10 text-kiro-inkSoft"
                                     }`}>
                                     {active ? "SELECTED" : "ADD"}
                                 </span>

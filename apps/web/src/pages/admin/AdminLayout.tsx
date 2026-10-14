@@ -83,6 +83,10 @@ const AdminLayout = (): JSX.Element | null => {
     };
     useKeyboardShortcutsHelp(toggleShortcuts);
 
+    useEffect(() => {
+        if (isAuthenticated && role) void refreshHealth();
+    }, [isAuthenticated, role, refreshHealth]);
+
     const handleDeactivateMaintenance = async () => {
         if (!settings?.id) return;
         try {
@@ -230,7 +234,7 @@ const AdminLayout = (): JSX.Element | null => {
                     <KpiChip
                         icon={Bell}
                         label="Attention"
-                        href="/admin/crm/leads?filter=new"
+                        href="/admin/crm/leads?stage=new"
                         value={isRefreshing ? "…" : stats.newLeads > 0 ? `${stats.newLeads} Priority` : "All Clear"}
                         variant={stats.newLeads > 0 ? "warning" : "muted"}
                     />
@@ -253,8 +257,8 @@ const AdminLayout = (): JSX.Element | null => {
                                     icon={Shield}
                                     label="Security"
                                     href="/admin/system/settings"
-                                    value={health.status === "healthy" ? "Optimal" : "Check"}
-                                    variant={health.status === "healthy" ? "success" : "warning"}
+                                    value={health.status === "unknown" ? "Checking…" : health.status === "healthy" ? "Optimal" : "Check"}
+                                    variant={health.status === "unknown" ? "muted" : health.status === "healthy" ? "success" : "warning"}
                                 />
                             </div>
                         </>

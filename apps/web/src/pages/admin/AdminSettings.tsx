@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { GeneralSettingsForm } from "@/components/admin/settings/GeneralSettingsForm";
 import { ReportRecipientsManager } from "@/components/admin/settings/ReportRecipientsManager";
+import { ServerCredentialsPanel } from "@/components/admin/settings/ServerCredentialsPanel";
 import AdminStats from "./AdminStats";
 import { Button } from "@/components/ui/primitives/button";
 
@@ -70,10 +71,6 @@ interface Integration {
 const INTEGRATIONS: Integration[] = [
   { id: "posthog", name: "PostHog (Analytics)", desc: "Product analytics and event tracking", status: "Pending configuration", key: "", managed: "site" },
   { id: "ga", name: "Google Analytics", desc: "Secondary web analytics tracking", status: "Pending configuration", key: "", managed: "site" },
-  { id: "resend", name: "Resend (Email)", desc: "Lead auto-replies, hot-lead alerts and weekly reports", status: "Managed via Supabase secrets", key: "", managed: "secrets", secretNames: ["RESEND_API_KEY"] },
-  { id: "telegram", name: "Telegram Bot", desc: "Lead notification delivery", status: "Managed via Supabase secrets", key: "", managed: "secrets", secretNames: ["TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID"] },
-  { id: "posthog-server", name: "PostHog (Reporting API)", desc: "Server-side analytics sync and admin reporting queries", status: "Managed via Supabase secrets", key: "", managed: "secrets", secretNames: ["POSTHOG_PERSONAL_API_KEY", "POSTHOG_PROJECT_ID"] },
-  { id: "imagekit", name: "ImageKit (Media)", desc: "Managed visual media uploads and transformations", status: "Managed via Supabase secrets", key: "", managed: "secrets", secretNames: ["IMAGEKIT_PRIVATE_KEY"] },
 ];
 
 const AdminSettings = () => {
@@ -429,10 +426,7 @@ const AdminSettings = () => {
                     </div>
                   ))}
                 </div>
-                <p className="text-[11px] text-[hsl(var(--admin-muted))] leading-relaxed">
-                  Server-side credentials are never stored in the database. Edge functions read them from Supabase
-                  secrets at runtime, so rotating a key in a provider console only requires updating the secret.
-                </p>
+                <ServerCredentialsPanel />
               </div>
       }
       {activeTab === "updates" &&

@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { Image } from "@/components/ui/enhanced/image";
 import { Section, Eyebrow, DisplayHeading, Body, Em, reveal } from "@/components/editorial";
+import { useSiteContent } from "@/content/useSiteContent";
 
 interface TeamMemberData {
     id: string;
@@ -57,6 +58,7 @@ const TeamMember = ({ member, index }: { member: TeamMemberData; index: number }
 
 /** The studio team, from `team_members`. Portraits with no card chrome. */
 const AboutTeam = () => {
+    const intro = useSiteContent("about.team");
     const [team, setTeam] = useState<TeamMemberData[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -88,14 +90,11 @@ const AboutTeam = () => {
     return (
         <Section rule>
             <motion.div {...reveal()} className="mb-16 max-w-2xl md:mb-24">
-                <Eyebrow className="mb-6">The studio</Eyebrow>
+                <Eyebrow className="mb-6">{intro.eyebrow}</Eyebrow>
                 <DisplayHeading className="mb-6">
-                    The minds behind the <Em>masterpieces.</Em>
+                    {intro.headingLead} <Em>{intro.headingEmphasis}</Em>
                 </DisplayHeading>
-                <Body className="max-w-lg">
-                    Specialists who don't just draft plans — they oversee site execution to the millimetre. Together,
-                    we orchestrate environments that are as durable as they are evocative.
-                </Body>
+                <Body className="max-w-lg">{intro.body}</Body>
             </motion.div>
 
             {loading ? (

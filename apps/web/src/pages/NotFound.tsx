@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { motion } from "framer-motion";
 
+import { useSiteContent } from "@/content/useSiteContent";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { MediaSlot } from "@/components/ui/enhanced/MediaSlot";
@@ -23,6 +24,7 @@ const ROUTES_OUT = [
  */
 const NotFoundPage = () => {
   const location = useLocation();
+  const copy = useSiteContent("site.not_found");
 
   useEffect(() => {
     console.error(`404: Non-existent route: ${location.pathname}`);
@@ -58,27 +60,27 @@ const NotFoundPage = () => {
             className="max-w-3xl"
             role="alert"
           >
-            <Eyebrow className="mb-8">Error 404</Eyebrow>
+            <Eyebrow className="mb-8">{copy.eyebrow}</Eyebrow>
             <DisplayHeading as="h1" size="lg" className="mb-6">
-              This page doesn't <Em>exist.</Em>
+              {copy.headingLead}{copy.headingEmphasis && <> <Em>{copy.headingEmphasis}</Em></>}
             </DisplayHeading>
             <Body className="max-w-xl">
-              We couldn't find anything at{" "}
-              <span className="font-mono text-[0.9em] text-white/70">{location.pathname}</span>. It may have moved, or
-              the link may be wrong.
+              {copy.bodyBefore}{" "}
+              <span className="font-mono text-[0.9em] text-white/70">{location.pathname}</span>
+              {copy.bodyAfter}
             </Body>
 
             <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
               <Link to="/" className={pillCtaClass}>
-                <PillCtaInner>Back to home</PillCtaInner>
+                <PillCtaInner>{copy.homeLabel}</PillCtaInner>
               </Link>
               <Link to="/contact-us" className={textLinkClass}>
-                Tell us what you were looking for <span aria-hidden="true">→</span>
+                {copy.contactLabel} <span aria-hidden="true">→</span>
               </Link>
             </div>
 
             <div className="mt-14 border-t border-white/10 pt-8">
-              <p className="mb-5 text-[10px] font-bold uppercase tracking-[0.25em] text-white/35">Try instead</p>
+              <p className="mb-5 text-[10px] font-bold uppercase tracking-[0.25em] text-white/35">{copy.tryInsteadLabel}</p>
               <ul className="flex flex-wrap gap-x-8 gap-y-3">
                 {ROUTES_OUT.map((route) => (
                   <li key={route.to}>

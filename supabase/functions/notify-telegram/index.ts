@@ -106,7 +106,11 @@ Deno.serve(async (req) => {
 
   const requestId = getRequestId(req);
   const botToken = Deno.env.get("TELEGRAM_BOT_TOKEN");
-  const chatId = Deno.env.get("TELEGRAM_CHAT_ID") || "1228126069";
+  const configuredChatId = Deno.env.get("TELEGRAM_CHAT_ID");
+  if (!configuredChatId) {
+    structuredLog("warn", FN, "TELEGRAM_CHAT_ID is not set; using the built-in fallback chat. Set the secret so alerts reach the intended chat.", {}, requestId);
+  }
+  const chatId = configuredChatId || "1228126069";
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
   const webhookSecret = Deno.env.get("WEBHOOK_SECRET") ?? "";
 

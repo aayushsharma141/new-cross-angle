@@ -28,17 +28,17 @@ export function StepTimeline({ formData, updateField }: Props) {
 
     return (
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
-            <div className="flex flex-col lg:flex-row gap-8">
+            <div className="flex flex-wrap gap-x-8 gap-y-10">
                 
-                {/* Left Column: Timeline & Settings */}
-                <div className="flex-1">
+                {/* Left Column: Timeline & Settings. Wraps under the contact card when the wizard column is narrow. */}
+                <div className="min-w-0 grow-[3] basis-[24rem]">
                     <h3 className="text-sm font-bold text-kiro-ink mb-4 uppercase tracking-wide">Project Start</h3>
                     
                     {/* Timeline options — radiogroup for keyboard/screen reader nav */}
                     <div
                         role="radiogroup"
                         aria-label="Project start timeline"
-                        className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8"
+                        className="grid grid-cols-[repeat(auto-fit,minmax(7.25rem,1fr))] gap-4 mb-8"
                     >
                         {timelineOptions.map((opt, i) => {
                             const active = formData.startTiming === opt.label;
@@ -51,7 +51,7 @@ export function StepTimeline({ formData, updateField }: Props) {
                                     tabIndex={isTabable ? 0 : -1}
                                     onClick={() => updateField("startTiming", opt.label)}
                                     className={`
-                                        py-5 px-3 text-center transition-all duration-300 rounded-[12px] border cursor-pointer flex flex-col items-center justify-center
+                                        group relative py-5 px-3 text-center transition-all duration-300 rounded-[12px] border cursor-pointer flex flex-col items-center justify-center
                                         ${active
                                             ? "bg-kiro-accent/[0.18] border-kiro-accent font-bold shadow-[0_4px_24px_rgba(139,111,71,0.25)] -translate-y-1 scale-[1.02] ring-2 ring-kiro-accent/30"
                                             : "bg-kiro-surface/80 border-kiro-ink/[0.06] hover:bg-kiro-accentSoft hover:border-kiro-accent/55 hover:-translate-y-1 hover:shadow-[0_4px_20px_rgba(139,111,71,0.12)]"
@@ -127,14 +127,14 @@ export function StepTimeline({ formData, updateField }: Props) {
                 </div>
 
                 {/* Right Column: Contact form */}
-                <div className="w-full lg:w-80 shrink-0">
+                <div className="min-w-0 grow basis-[20rem] max-w-[26rem]">
                     <fieldset className="bg-kiro-surface border border-kiro-ink/[0.06] rounded-[12px] p-6 shadow-sm sticky top-6">
                         <legend className="font-bold text-sm mb-5 text-kiro-ink uppercase tracking-wide px-1 flex items-center gap-2">
                             <ClipboardList size={18} className="text-kiro-accent" /> Contact Details
                         </legend>
                         <div className="flex flex-col gap-5">
                             <div>
-                                <label htmlFor="est-name" className="block text-xs font-bold mb-2 text-kiro-inkSoft uppercase tracking-wide">Full Name <span aria-hidden="true" className="text-red-400">*</span></label>
+                                <label htmlFor="est-name" className="block text-xs font-bold mb-2 text-kiro-inkSoft uppercase tracking-wide">Full Name <span aria-hidden="true" className="text-red-700">*</span></label>
                                 <input
                                     id="est-name"
                                     type="text"
@@ -148,7 +148,7 @@ export function StepTimeline({ formData, updateField }: Props) {
                                 />
                             </div>
                             <div>
-                                <label htmlFor="est-email" className="block text-xs font-bold mb-2 text-kiro-inkSoft uppercase tracking-wide">Email <span aria-hidden="true" className="text-red-400">*</span></label>
+                                <label htmlFor="est-email" className="block text-xs font-bold mb-2 text-kiro-inkSoft uppercase tracking-wide">Email <span aria-hidden="true" className="text-red-700">*</span></label>
                                 <input
                                     id="est-email"
                                     type="email"
@@ -162,7 +162,7 @@ export function StepTimeline({ formData, updateField }: Props) {
                                 />
                             </div>
                             <div>
-                                <label htmlFor="est-phone" className="block text-xs font-bold mb-2 text-kiro-inkSoft uppercase tracking-wide">Phone Number <span aria-hidden="true" className="text-red-400">*</span></label>
+                                <label htmlFor="est-phone" className="block text-xs font-bold mb-2 text-kiro-inkSoft uppercase tracking-wide">Phone Number <span aria-hidden="true" className="text-red-700">*</span></label>
                                 <input
                                     id="est-phone"
                                     type="tel"
@@ -176,6 +176,9 @@ export function StepTimeline({ formData, updateField }: Props) {
                                 />
                             </div>
                         </div>
+                        <p className="mt-5 text-[13px] leading-relaxed text-kiro-inkSoft">
+                            We use these details to save your estimate and let a designer follow up on it.
+                        </p>
                     </fieldset>
                 </div>
 

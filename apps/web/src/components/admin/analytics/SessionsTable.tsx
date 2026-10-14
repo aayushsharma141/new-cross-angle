@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { icons } from "@/design-system/tokens/icons";
 import { Button } from "@/components/ui/primitives/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/design-system/components/Table";
-import type { SessionRow } from "./analytics-utils";
+import { parseUA, STAGE_LABELS, type SessionRow } from "./analytics-utils";
 
 interface SessionsTableProps {
   sessions: SessionRow[];
@@ -32,7 +32,7 @@ export const SessionsTable = ({ sessions, loading, viewingType, onViewingTypeCha
           All Sessions
         </Button>
         <Button variant="ghost" size="sm" onClick={() => onViewingTypeChange("completed")} className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors h-auto ${viewingType === "completed" ? "bg-white/10 text-foreground shadow-sm hover:bg-white/20" : "text-muted-foreground hover:text-foreground"}`}>
-          Completed Leads
+          Completed
         </Button>
       </div>
     </div>
@@ -42,9 +42,9 @@ export const SessionsTable = ({ sessions, loading, viewingType, onViewingTypeCha
           <TableRow>
             <TableHead className="px-6 py-4 font-medium border-none bg-transparent">Date</TableHead>
             <TableHead className="px-6 py-4 font-medium border-none bg-transparent">Session ID</TableHead>
-            <TableHead className="px-6 py-4 font-medium border-none bg-transparent">Platform</TableHead>
-            <TableHead className="px-6 py-4 font-medium border-none bg-transparent">Services</TableHead>
-            <TableHead className="px-6 py-4 font-medium border-none bg-transparent">Timeline</TableHead>
+            <TableHead className="px-6 py-4 font-medium border-none bg-transparent">Device</TableHead>
+            <TableHead className="px-6 py-4 font-medium border-none bg-transparent">Mode</TableHead>
+            <TableHead className="px-6 py-4 font-medium border-none bg-transparent">Reached</TableHead>
             <TableHead className="px-6 py-4 font-medium text-right border-none bg-transparent">Status</TableHead>
           </TableRow>
         </TableHeader>
@@ -81,32 +81,23 @@ export const SessionsTable = ({ sessions, loading, viewingType, onViewingTypeCha
                 <TableCell className="px-6 py-4 font-mono text-xs text-foreground/80 group-hover:text-pink-400 transition-colors border-none">
                   ...{session.id.slice(-8)}
                 </TableCell>
-                <TableCell className="px-6 py-4 border-none">
-                  {(session.answers?.platform as string) || "-"}
+                <TableCell className="px-6 py-4 border-none text-muted-foreground">
+                  {session.user_agent ? parseUA(session.user_agent).device : "—"}
                 </TableCell>
-                <TableCell className="px-6 py-4 max-w-xs truncate border-none" title={(session.answers?.services as string[] | undefined)?.join(", ")}>
-                  {session.answers?.services ? (
-                    <div className="flex gap-1.5 flex-wrap">
-                      {(session.answers.services as string[]).slice(0, 2).map((s: string, i: number) => (
-                        <span key={i} className="bg-indigo-500/10 text-indigo-400 text-[10px] px-2 py-0.5 rounded-full border border-indigo-500/20">{s}</span>
-                      ))}
-                      {(session.answers.services as string[]).length > 2 && (
-                        <span className="bg-white/5 text-muted-foreground text-[10px] px-2 py-0.5 rounded-full border border-white/10">+{(session.answers.services as string[]).length - 2}</span>
-                      )}
-                    </div>
-                  ) : "-"}
+                <TableCell className="px-6 py-4 border-none capitalize text-muted-foreground">
+                  {session.mode === "unknown" ? "—" : session.mode}
                 </TableCell>
                 <TableCell className="px-6 py-4 border-none">
-                  {session.answers?.timeline ? (
+                  {session.last_stage ? (
                     <span className="flex items-center gap-1.5 text-xs">
                       <Clock className={cn("text-muted-foreground", icons.xs)} />
-                      {session.answers.timeline as string}
+                      {STAGE_LABELS[session.last_stage] ?? session.last_stage}
                     </span>
-                  ) : "-"}
+                  ) : "—"}
                 </TableCell>
                 <TableCell className="px-6 py-4 text-right border-none">
                   {session.is_completed ? (
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">Captured Lead</span>
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">Completed</span>
                   ) : (
                     <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-500 border border-amber-500/20">Incomplete</span>
                   )}

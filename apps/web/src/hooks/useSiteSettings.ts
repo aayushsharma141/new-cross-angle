@@ -73,6 +73,14 @@ interface UseSiteSettingsResult<T extends SiteSettings = SiteSettings> {
   refetch: () => void;
 }
 
+/** Shown until the super admin sets real numbers in Settings. One place, so pages cannot drift apart. */
+export const STUDIO_STATS_DEFAULTS = {
+  yearsExperience: 15,
+  happyClients: 500,
+  projectsCompleted: 750,
+  awardsWon: 25,
+} as const;
+
 const defaultSettings: SiteSettings = {
   id: "",
   studio_name: "Crossangle Interior",
@@ -106,12 +114,7 @@ const defaultSettings: SiteSettings = {
     pinterest: "https://in.pinterest.com/crossangleinterior/",
     youtube: "https://www.youtube.com/",
   },
-  studio_stats: {
-    yearsExperience: 15,
-    happyClients: 500,
-    projectsCompleted: 750,
-    awardsWon: 25,
-  },
+  studio_stats: { ...STUDIO_STATS_DEFAULTS },
   hero_title: null,
   hero_subtitle: null,
   about_text: null,
@@ -188,6 +191,22 @@ function reportFetchError(err: unknown): void {
   if (err instanceof Error && err.name !== "AbortError") {
     console.error("Error fetching site settings:", err);
   }
+}
+
+/** Studio numbers from settings, per-field falling back to the defaults. A saved 0 is kept, not replaced. */
+export function useStudioStats(): Record<keyof typeof STUDIO_STATS_DEFAULTS, number> {
+  const { settings } = useSiteSettings();
+  const saved = settings?.studio_stats ?? {};
+  const pick = (k: keyof typeof STUDIO_STATS_DEFAULTS) => {
+    const v = Number(saved[k]);
+    return Number.isFinite(v) && saved[k] != null ? v : STUDIO_STATS_DEFAULTS[k];
+  };
+  return {
+    yearsExperience: pick("yearsExperience"),
+    happyClients: pick("happyClients"),
+    projectsCompleted: pick("projectsCompleted"),
+    awardsWon: pick("awardsWon"),
+  };
 }
 
 export function useSiteSettings(): UseSiteSettingsResult {

@@ -13,17 +13,26 @@ import {
     Calculator,
     Shield,
     Settings,
-    Database,
-    Zap,
+    Bell,
     RefreshCw,
     ArrowUpRight,
-    Lock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SpotlightCard } from "@/components/ReactBits/index";
+import { ModuleDirectory } from "@/components/admin/ModuleDirectory";
+import { RecentActivityFeed } from "@/components/admin/dashboard/RecentActivityFeed";
+import { useQueryClient } from "@tanstack/react-query";
+import { formatDistanceToNow } from "date-fns";
+import { useSystem } from "@/context/SystemContext";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { APP_ROLES, ROLE_LABELS } from "@/lib/auth/rbac";
 
 export default function AdminHub() {
-    const { stats, isRefreshing, refresh } = useHubStats();
+    const { stats, hasError, isLoading: isHubLoading } = useHubStats();
+    const queryClient = useQueryClient();
+    const { health } = useSystem();
+    const { settings } = useSiteSettings();
+    const storagePct = stats.storageTotalGB > 0 ? (stats.storageUsedGB / stats.storageTotalGB) * 100 : 0;
     const navigate = useNavigate();
     const { setCurrentModule } = useAdmin();
     const location = useLocation();
@@ -105,9 +114,9 @@ export default function AdminHub() {
                                 </div>
                                 <div className="flex flex-col">
                                     <span className="text-2xl font-bold text-amber-500 tabular-nums">
-                                        {stats.totalLeads > 0 ? "15m" : "—"}
+                                        {stats.inboxCount}
                                     </span>
-                                    <span className="text-[10px] uppercase font-semibold text-[hsl(var(--admin-muted))]">Avg Response</span>
+                                    <span className="text-[10px] uppercase font-semibold text-[hsl(var(--admin-muted))]">New Inquiries</span>
                                 </div>
                             </div>
 
@@ -156,43 +165,43 @@ export default function AdminHub() {
                                         <p className="text-xs text-[hsl(var(--admin-muted))]">System status & operations</p>
                                     </div>
                                 </div>
-                                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                                               <div className="flex items-center gap-4 mb-4 mt-2">
-                                <div className="relative flex items-center justify-center h-14 w-14 shrink-0" role="progressbar" {...{ 'aria-valuenow': 96, 'aria-valuemin': 0, 'aria-valuemax': 100, 'aria-label': 'System Health Score' }}>
-                                    <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                                        <path
-                                            className="text-admin-border/30"
-                                            strokeWidth="3"
-                                            stroke="currentColor"
-                                            fill="none"
-                                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                                        />
-                                        <path
-                                            className="text-emerald-500"
-                                            strokeDasharray="96, 100"
-                                            strokeWidth="3"
-                                            strokeLinecap="round"
-                                            stroke="currentColor"
-                                            fill="none"
-                                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                                        />
-                                    </svg>
-                                    <span className="absolute text-xs font-bold text-[hsl(var(--admin-text))]">96%</span>
-                                </div>
-                                <div className="flex flex-col">
-                                    <span className="text-sm font-bold text-[hsl(var(--admin-text))]">Health Score</span>
-                                    <span className="text-xs text-[hsl(var(--admin-muted))]">Critical checks OK</span>
-                                </div>
-                            </div>              </div>
+                                <span
+                                    className={cn(
+                                        "h-2 w-2 rounded-full",
+                                        health.status === "healthy" && "bg-emerald-500",
+                                        health.status === "unknown" && "bg-admin-border",
+                                        (health.status === "degraded" || health.status === "error") && "bg-amber-500"
+                                    )}
+                                    aria-hidden="true"
+                                />
+                            </div>
+
+                            <div className="flex flex-col gap-0.5 mb-4 mt-2">
+                                <span className="text-lg font-serif text-[hsl(var(--admin-text))]">
+                                    {health.status === "unknown" && "Checking…"}
+                                    {health.status === "healthy" && "All checks passing"}
+                                    {health.status === "degraded" && "Some checks failing"}
+                                    {health.status === "error" && "Health check failed"}
+                                </span>
+                                {health.status !== "unknown" && (
+                                    <span className="text-xs text-[hsl(var(--admin-muted))]">
+                                        Checked {formatDistanceToNow(new Date(health.lastChecked), { addSuffix: true })}
+                                    </span>
+                                )}
+                            </div>
 
                             <div className="flex flex-col gap-2 mt-auto text-xs font-mono pt-4 border-t border-admin-border/40">
                                 <div className="flex justify-between items-center py-0.5">
-                                    <span className="text-[hsl(var(--admin-muted))]">Website</span>
-                                    <span className="text-emerald-500 font-bold">HEALTHY</span>
+                                    <span className="text-[hsl(var(--admin-muted))]">Database</span>
+                                    <span className={cn("font-bold", health.status === "unknown" ? "text-[hsl(var(--admin-muted))]" : health.database === "connected" ? "text-emerald-500" : "text-amber-500")}>
+                                        {health.status === "unknown" ? "—" : health.database === "connected" ? "Connected" : "Unreachable"}
+                                    </span>
                                 </div>
                                 <div className="flex justify-between items-center py-0.5">
-                                    <span className="text-[hsl(var(--admin-muted))]">CRM Synced</span>
-                                    <span className="text-emerald-500 font-bold">HEALTHY</span>
+                                    <span className="text-[hsl(var(--admin-muted))]">Edge functions</span>
+                                    <span className={cn("font-bold", health.status === "unknown" ? "text-[hsl(var(--admin-muted))]" : health.api === "online" ? "text-emerald-500" : "text-amber-500")}>
+                                        {health.status === "unknown" ? "—" : health.api === "online" ? "Reachable" : "Unreachable"}
+                                    </span>
                                 </div>
                                 <div className="flex justify-between items-center py-0.5">
                                     <span className="text-[hsl(var(--admin-muted))]">Storage Used</span>
@@ -238,10 +247,6 @@ export default function AdminHub() {
                             </div>
 
                             <div className="flex flex-col gap-1 mt-auto pt-4 border-t border-admin-border/40 text-xs">
-                                <div className="flex justify-between">
-                                    <span className="text-[hsl(var(--admin-muted))]">Organic Funnel</span>
-                                    <span className="text-emerald-500 font-bold">Active</span>
-                                </div>
                                 <div className="flex justify-between">
                                     <span className="text-[hsl(var(--admin-muted))]">Funnel Share</span>
                                     <span className="text-[hsl(var(--admin-text))] font-bold">
@@ -311,19 +316,21 @@ export default function AdminHub() {
                             <div className="flex flex-col gap-1.5 my-2">
                                 <div className="flex justify-between text-xs">
                                     <span className="text-[hsl(var(--admin-muted))]">Storage Usage</span>
-                                    <span className="text-[hsl(var(--admin-text))] font-mono font-bold">12% ({formatStorage(stats.storageUsedGB)})</span>
+                                    <span className="text-[hsl(var(--admin-text))] font-mono font-bold">
+                                        {storagePct < 1 && storagePct > 0 ? "<1" : Math.round(storagePct)}% ({formatStorage(stats.storageUsedGB)} of {stats.storageTotalGB} GB)
+                                    </span>
                                 </div>
                                 <div className="h-1.5 w-full bg-admin-border/30 rounded-full overflow-hidden">
-                                    <div className="h-full bg-emerald-500 rounded-full w-[12%]" />
+                                    <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${Math.min(100, storagePct)}%` }} />
                                 </div>
                             </div>
 
                             <div className="flex items-center justify-between mt-auto pt-4 border-t border-admin-border/40 text-xs text-[hsl(var(--admin-muted))]">
-                                <span className="font-semibold text-[hsl(var(--admin-text))]">158 Images</span>
-                                <span>•</span>
-                                <span className="font-semibold text-[hsl(var(--admin-text))]">43 Videos</span>
-                                <span>•</span>
-                                <span className="font-semibold text-[hsl(var(--admin-text))]">12 Reviews</span>
+                                <span className="font-semibold text-[hsl(var(--admin-text))]">{stats.imageCount} Images</span>
+                                <span aria-hidden="true">•</span>
+                                <span className="font-semibold text-[hsl(var(--admin-text))]">{stats.videoCount} Videos</span>
+                                <span aria-hidden="true">•</span>
+                                <span className="font-semibold text-[hsl(var(--admin-text))]">{stats.activeTestimonials} Reviews</span>
                             </div>
                         </SpotlightCard>
                     </Link>
@@ -351,13 +358,15 @@ export default function AdminHub() {
                             </div>
 
                             <div className="flex flex-col gap-1.5 my-2">
-                                <span className="text-xs text-[hsl(var(--admin-muted))]">Total Organic Views</span>
-                                <span className="text-2xl font-bold text-[hsl(var(--admin-text))] font-mono">124.6K</span>
+                                <span className="text-xs text-[hsl(var(--admin-muted))]">Article views (on-site tracker)</span>
+                                <span className="text-2xl font-bold text-[hsl(var(--admin-text))] font-mono">{stats.blogViews.toLocaleString("en-IN")}</span>
                             </div>
 
                             <div className="flex justify-between mt-auto pt-4 border-t border-admin-border/40 text-xs">
                                 <span className="text-[hsl(var(--admin-muted))]">Articles Published</span>
-                                <span className="text-[hsl(var(--admin-text))] font-bold">18 (Active)</span>
+                                <span className="text-[hsl(var(--admin-text))] font-bold">
+                                    {stats.publishedPosts}{stats.draftPosts > 0 && ` (${stats.draftPosts} ${stats.draftPosts === 1 ? "draft" : "drafts"})`}
+                                </span>
                             </div>
                         </SpotlightCard>
                     </Link>
@@ -379,23 +388,26 @@ export default function AdminHub() {
                                     </div>
                                     <div>
                                         <h3 className="text-base font-serif font-medium text-[hsl(var(--admin-text))] tracking-tight">Team & Security</h3>
-                                        <p className="text-xs text-[hsl(var(--admin-muted))]">Manage admin team members and security settings</p>
+                                        <p className="text-xs text-[hsl(var(--admin-muted))]">Manage admin team members, roles and security settings</p>
                                     </div>
                                 </div>
                             </div>
 
                             <div className="flex flex-col gap-1.5 my-2">
-                                <span className="text-xs text-[hsl(var(--admin-muted))]">Online Personnel</span>
-                                <div className="flex items-center gap-2 text-xs font-semibold">
-                                    <span className="px-2 py-0.5 rounded bg-admin-surface border border-admin-border">4 Admins</span>
-                                    <span className="px-2 py-0.5 rounded bg-admin-surface border border-admin-border">6 Designers</span>
+                                <span className="text-xs text-[hsl(var(--admin-muted))]">Team members by role</span>
+                                <div className="flex flex-wrap items-center gap-2 text-xs font-semibold">
+                                    {APP_ROLES.filter((r) => stats.roleCounts[r]).map((r) => (
+                                        <span key={r} className="px-2 py-0.5 rounded bg-admin-surface border border-admin-border">
+                                            {stats.roleCounts[r]} {ROLE_LABELS[r]}
+                                        </span>
+                                    ))}
                                 </div>
                             </div>
 
                             <div className="flex justify-between mt-auto pt-4 border-t border-admin-border/40 text-xs">
-                                <span className="text-[hsl(var(--admin-muted))]">2FA Security Status</span>
-                                <span className="text-emerald-500 font-bold flex items-center gap-1">
-                                    <Lock className="w-3 h-3" /> Enforced
+                                <span className="text-[hsl(var(--admin-muted))]">Total team members</span>
+                                <span className="text-[hsl(var(--admin-text))] font-bold">
+                                    {Object.values(stats.roleCounts).reduce((sum, n) => sum + n, 0)}
                                 </span>
                             </div>
                         </SpotlightCard>
@@ -418,87 +430,100 @@ export default function AdminHub() {
                                     </div>
                                     <div>
                                         <h3 className="text-base font-serif font-medium text-[hsl(var(--admin-text))] tracking-tight">System Settings</h3>
-                                        <p className="text-xs text-[hsl(var(--admin-muted))]">Configuration & backups</p>
+                                        <p className="text-xs text-[hsl(var(--admin-muted))]">Configuration, integrations & audit log</p>
                                     </div>
                                 </div>
                             </div>
 
                             <div className="flex flex-col gap-1.5 my-2">
                                 <div className="flex justify-between text-xs">
-                                    <span className="text-[hsl(var(--admin-muted))]">Database Health</span>
-                                    <span className="text-emerald-500 font-bold">100% ONLINE</span>
+                                    <span className="text-[hsl(var(--admin-muted))]">Maintenance mode</span>
+                                    <span className={cn("font-bold", settings?.maintenance_mode_active ? "text-red-400" : "text-[hsl(var(--admin-text))]")}>
+                                        {settings ? (settings.maintenance_mode_active ? "On (site offline)" : "Off") : "—"}
+                                    </span>
                                 </div>
                                 <div className="flex justify-between text-xs">
-                                    <span className="text-[hsl(var(--admin-muted))]">Integrations Active</span>
-                                    <span className="text-[hsl(var(--admin-text))] font-bold">6 Integrations</span>
+                                    <span className="text-[hsl(var(--admin-muted))]">Media storage</span>
+                                    <span className="text-[hsl(var(--admin-text))] font-bold">{formatStorage(stats.storageUsedGB)} of {stats.storageTotalGB} GB</span>
                                 </div>
                             </div>
 
                             <div className="flex justify-between mt-auto pt-4 border-t border-admin-border/40 text-xs">
-                                <span className="text-[hsl(var(--admin-muted))]">Auto Backups Status</span>
-                                <span className="text-emerald-500 font-bold">SUCCESSFUL</span>
+                                <span className="text-[hsl(var(--admin-muted))]">Settings, email templates, audit log</span>
+                                <ArrowUpRight className="w-3.5 h-3.5 text-[hsl(var(--admin-primary))]" aria-hidden="true" />
                             </div>
                         </SpotlightCard>
                     </Link>
 
                     )}
 
-                    {/* ── Smart AI Insights Panel (lg:col-span-4) ── */}
+                    {/* ── Needs attention: derived only from real lead counts ── */}
                     {hasAdminAccess && (
-                    <div className="lg:col-span-4 rounded-2xl border border-[hsl(var(--admin-primary))]/10 bg-[hsl(var(--admin-card))] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
+                    <div className="lg:col-span-4 rounded-2xl border border-admin-border/50 bg-[hsl(var(--admin-card))] p-6">
                         <div className="flex items-center gap-2 mb-4">
-                            <Zap className="w-4 h-4 text-[hsl(var(--admin-primary))] animate-pulse" />
-                            <span className="text-xs font-bold uppercase tracking-widest text-[hsl(var(--admin-primary))]">
-                                Key Alerts & Recommendations
-                            </span>
+                            <Bell className="w-4 h-4 text-[hsl(var(--admin-primary))]" />
+                            <h2 className="text-xs font-bold uppercase tracking-widest text-[hsl(var(--admin-primary))]">
+                                Needs attention
+                            </h2>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="flex items-start gap-3 p-3.5 rounded-xl bg-admin-surface/40 border border-admin-border/40 text-xs">
-                                <div className="h-2 w-2 rounded-full bg-amber-500 mt-1.5 shrink-0" role="img" aria-label="Medium priority alert" title="Medium priority" />
-                                <div className="flex flex-col gap-1">
-                                    <span className="font-semibold text-[hsl(var(--admin-text))]">New Lead Waiting for Response</span>
-                                    <span className="text-[hsl(var(--admin-muted))]">Rahul Sharma submitted a quote request 2 hours ago.</span>
-                                    <Link to="/admin/crm/leads" className="text-[hsl(var(--admin-primary))] font-semibold hover:underline flex items-center gap-1 mt-1">
-                                        View Leads <ArrowUpRight className="w-3 h-3" />
-                                    </Link>
-                                </div>
-                            </div>
+                        {(() => {
+                            const alerts: { tone: string; title: string; detail: string; href: string; cta: string }[] = [];
+                            if (hasError) {
+                                alerts.push({
+                                    tone: "bg-red-500",
+                                    title: "Some hub figures failed to load",
+                                    detail: "Zeros on this page may be missing data rather than real zeros. Refresh, or open the CRM directly.",
+                                    href: "/admin/crm/leads",
+                                    cta: "Open CRM",
+                                });
+                            }
+                            if (stats.newLeads > 0) {
+                                alerts.push({
+                                    tone: "bg-amber-500",
+                                    title: `${stats.newLeads} new ${stats.newLeads === 1 ? "lead is" : "leads are"} waiting for a first reply`,
+                                    detail: "Leads still in the New Inquiry stage.",
+                                    href: "/admin/crm/leads?stage=new",
+                                    cta: "Review new leads",
+                                });
+                            }
+                            if (stats.proposalCount > 0) {
+                                alerts.push({
+                                    tone: "bg-[hsl(var(--admin-primary))]",
+                                    title: `${stats.proposalCount} ${stats.proposalCount === 1 ? "lead is" : "leads are"} waiting on a decision`,
+                                    detail: "Quote sent or in the closing stage.",
+                                    href: "/admin/crm/leads",
+                                    cta: "Open pipeline",
+                                });
+                            }
 
-                            <div className="flex items-start gap-3 p-3.5 rounded-xl bg-admin-surface/40 border border-admin-border/40 text-xs">
-                                <div className="h-2 w-2 rounded-full bg-red-500 mt-1.5 shrink-0" role="img" aria-label="High priority alert" title="High priority" />
-                                <div className="flex flex-col gap-1">
-                                    <span className="font-semibold text-[hsl(var(--admin-text))]">Quote Waiting for Signature</span>
-                                    <span className="text-[hsl(var(--admin-muted))]">Luxury Culinary Space Project quote sent 3 days ago, waiting for client approval.</span>
-                                    <Link to="/admin/estimator/estimate-leads" className="text-[hsl(var(--admin-primary))] font-semibold hover:underline flex items-center gap-1 mt-1">
-                                        View Quotes <ArrowUpRight className="w-3 h-3" />
-                                    </Link>
-                                </div>
-                            </div>
-
-                            <div className="flex items-start gap-3 p-3.5 rounded-xl bg-admin-surface/40 border border-admin-border/40 text-xs">
-                                <div className="h-2 w-2 rounded-full bg-emerald-500 mt-1.5 shrink-0" role="img" aria-label="Success alert" title="Success" />
-                                <div className="flex flex-col gap-1">
-                                    <span className="font-semibold text-[hsl(var(--admin-text))]">Search Rankings Improved</span>
-                                    <span className="text-[hsl(var(--admin-muted))]">SEO score up 4%. "Luxury interior design Jamshedpur" now ranking on Google page 1.</span>
-                                    <Link to="/admin/blog/overview" className="text-[hsl(var(--admin-primary))] font-semibold hover:underline flex items-center gap-1 mt-1">
-                                        View SEO Analytics <ArrowUpRight className="w-3 h-3" />
-                                    </Link>
-                                </div>
-                            </div>
-
-                            <div className="flex items-start gap-3 p-3.5 rounded-xl bg-admin-surface/40 border border-admin-border/40 text-xs">
-                                <div className="h-2 w-2 rounded-full bg-[hsl(var(--admin-primary))] mt-1.5 shrink-0" role="img" aria-label="System status alert" title="System status" />
-                                <div className="flex flex-col gap-1">
-                                    <span className="font-semibold text-[hsl(var(--admin-text))]">System Performance Improved</span>
-                                    <span className="text-[hsl(var(--admin-muted))]">Site speed optimized. Page load time down 14%.</span>
-                                    <Link to="/admin/dashboard" className="text-[hsl(var(--admin-primary))] font-semibold hover:underline flex items-center gap-1 mt-1">
-                                        View Dashboard <ArrowUpRight className="w-3 h-3" />
-                                    </Link>
-                                </div>
-                            </div>
-                        </div>
+                            if (isHubLoading) {
+                                return <p className="text-xs text-[hsl(var(--admin-muted))]">Checking leads…</p>;
+                            }
+                            if (alerts.length === 0) {
+                                return (
+                                    <p className="text-sm text-[hsl(var(--admin-muted))]">
+                                        Nothing needs attention right now. No new leads and no quotes awaiting a decision.
+                                    </p>
+                                );
+                            }
+                            return (
+                                <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {alerts.map((alert) => (
+                                        <li key={alert.title} className="flex items-start gap-3 p-3.5 rounded-xl bg-admin-surface/40 border border-admin-border/40 text-xs">
+                                            <span className={cn("h-2 w-2 rounded-full mt-1.5 shrink-0", alert.tone)} aria-hidden="true" />
+                                            <div className="flex flex-col gap-1">
+                                                <span className="font-semibold text-[hsl(var(--admin-text))]">{alert.title}</span>
+                                                <span className="text-[hsl(var(--admin-muted))]">{alert.detail}</span>
+                                                <Link to={alert.href} className="text-[hsl(var(--admin-primary))] font-semibold hover:underline flex items-center gap-1 mt-1">
+                                                    {alert.cta} <ArrowUpRight className="w-3 h-3" />
+                                                </Link>
+                                            </div>
+                                        </li>
+                                    ))}
+                                </ul>
+                            );
+                        })()}
                     </div>
-
                     )}
 
                     {/* ── Live Activity Stream (lg:col-span-2) — moved from right sidebar ── */}
@@ -509,45 +534,21 @@ export default function AdminHub() {
                                 Recent Activity
                             </span>
                             <button
-                                onClick={() => refresh()}
-                                disabled={isRefreshing}
-                                className="text-[hsl(var(--admin-muted))] hover:text-[hsl(var(--admin-primary))] transition-colors disabled:opacity-50"
-                                title="Refresh activity logs"
+                                type="button"
+                                onClick={() => void queryClient.invalidateQueries({ queryKey: ["recent-activity"] })}
+                                className="text-[hsl(var(--admin-muted))] hover:text-[hsl(var(--admin-primary))] transition-colors"
+                                aria-label="Refresh recent activity"
+                                title="Refresh recent activity"
                             >
-                                <RefreshCw className={cn("w-3.5 h-3.5", isRefreshing && "animate-spin")} />
+                                <RefreshCw className="w-3.5 h-3.5" />
                             </button>
                         </div>
 
-                        <div className="flex flex-col gap-4 text-xs overflow-y-auto max-h-[220px] custom-scrollbar">
-                            {[
-                                { time: "2 min ago", icon: Sparkles, color: "text-[hsl(var(--admin-primary))]", title: "Lead Quiz Complete", desc: "sharma1.aayu completed the style questionnaire.", type: "Quiz Activity" },
-                                { time: "5 min ago", icon: Calculator, color: "text-emerald-500", title: "New Estimate Request", desc: "Luxury master suite quote auto-generated.", type: "Estimator Activity" },
-                                { time: "12 min ago", icon: Database, color: "text-blue-500", title: "System Snapshot", desc: "Daily backup written to secure vault.", type: "System Log" },
-                                { time: "25 min ago", icon: FileText, color: "text-amber-500", title: "Invoice Dispatched", desc: "Billing statement sent to Executive client.", type: "Billing Activity" },
-                                { time: "1 hr ago", icon: Users, color: "text-purple-500", title: "Site Engineer Active", desc: "Designer checked in for Serene Suite project.", type: "Team Activity" },
-                                { time: "2 hrs ago", icon: Shield, color: "text-emerald-500", title: "Security Scan OK", desc: "18 admin tokens verified. No warnings.", type: "Security Log" },
-                            ].map((event, idx) => (
-                                <div key={idx} className="flex gap-2.5 relative before:absolute before:left-3 before:top-7 before:bottom-0 before:w-px before:bg-admin-border/40 last:before:hidden">
-                                    <div 
-                                        className={cn("h-6 w-6 rounded-lg bg-admin-surface border border-admin-border flex items-center justify-center shrink-0", event.color)}
-                                        title={event.type}
-                                        aria-label={event.type}
-                                        role="img"
-                                    >
-                                        <event.icon className="w-3 h-3" />
-                                    </div>
-                                    <div className="flex flex-col gap-0.5 min-w-0">
-                                        <div className="flex justify-between items-center gap-1">
-                                            <span className="font-semibold text-[hsl(var(--admin-text))] truncate" title={event.title}>{event.title}</span>
-                                            <span className="text-[9px] text-[hsl(var(--admin-muted))] tabular-nums shrink-0">{event.time}</span>
-                                        </div>
-                                        <p className="text-[10px] text-[hsl(var(--admin-muted))] leading-normal">{event.desc}</p>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                        <RecentActivityFeed limit={8} heightClassName="h-[260px]" />
                     </div>
                     )}
+
+                    <ModuleDirectory role={role} />
 
                 </div>
 

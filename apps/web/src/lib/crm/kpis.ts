@@ -60,10 +60,12 @@ export const CRM_KPIS: readonly CrmKpiSpec[] = [
     icon: Flame,
     iconTileClass: "bg-rose-500/10 text-rose-400",
     compute: (leads) => {
-      const hot = leads.filter((l) => (l.score ?? 0) >= HOT_LEAD_THRESHOLD).length;
+      // Same population as the CRM analytics page: open deals only.
+      const open = leads.filter((l) => l.status !== "won" && l.status !== "lost");
+      const hot = open.filter((l) => (l.score ?? 0) >= HOT_LEAD_THRESHOLD).length;
       return {
         value: hot,
-        suffix: `of ${leads.length} active`,
+        suffix: `of ${open.length} active`,
         hint: `Score ≥ ${HOT_LEAD_THRESHOLD}`,
         hintTone: "neutral",
       };

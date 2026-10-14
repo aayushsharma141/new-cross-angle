@@ -19,22 +19,28 @@ const SharedResultPage = lazy(() => import("@/addons/discovery/pages/SharedResul
 const PrivacyPage = lazy(() => import("@/pages/PrivacyPage"));
 const TermsPage = lazy(() => import("@/pages/TermsPage"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
+
+// /lab (design-system playground) and /system-blueprint (internal specs and audit
+// reports) are developer tools. In production builds `DEV` is a literal false, so
+// the lazy imports above are dropped from the bundle and the routes fall through
+// to NotFound.
+const DEV = import.meta.env.DEV;
+
+const BlueprintPage = DEV ? lazy(() => import("@/addons/discovery/pages/BlueprintPage")) : NotFound;
+
+const LabLayout = DEV ? lazy(() => import("@/components/lab/LabLayout")) : NotFound;
+const LabOverview = DEV ? lazy(() => import("@/pages/lab/LabOverview")) : NotFound;
+const LabFoundations = DEV ? lazy(() => import("@/pages/lab/LabFoundations")) : NotFound;
+const LabInteractive = DEV ? lazy(() => import("@/pages/lab/LabInteractive")) : NotFound;
+const LabRoadmap = DEV ? lazy(() => import("@/pages/lab/LabRoadmap")) : NotFound;
+const LabOverlayDialog = DEV ? lazy(() => import("@/pages/lab/LabOverlayDialog")) : NotFound;
+const LabCards = DEV ? lazy(() => import("@/pages/lab/LabCards")) : NotFound;
+const LabNavigation = DEV ? lazy(() => import("@/pages/lab/LabNavigation")) : NotFound;
+const LabPatterns = DEV ? lazy(() => import("@/pages/lab/LabPatterns")) : NotFound;
+const LabTemplates = DEV ? lazy(() => import("@/pages/lab/LabTemplates")) : NotFound;
 const OurProcessPage = lazy(() => import("@/pages/OurProcessPage"));
 const LocationsPage = lazy(() => import("@/pages/LocationsPage"));
 const LocationPage = lazy(() => import("@/pages/LocationPage"));
-const BlueprintPage = lazy(() => import("@/addons/discovery/pages/BlueprintPage"));
-
-const LabLayout = lazy(() => import("@/components/lab/LabLayout"));
-const LabOverview = lazy(() => import("@/pages/lab/LabOverview"));
-const LabFoundations = lazy(() => import("@/pages/lab/LabFoundations"));
-const LabInteractive = lazy(() => import("@/pages/lab/LabInteractive"));
-const LabRoadmap = lazy(() => import("@/pages/lab/LabRoadmap"));
-const LabOverlayDialog = lazy(() => import("@/pages/lab/LabOverlayDialog"));
-const LabCards = lazy(() => import("@/pages/lab/LabCards"));
-const LabNavigation = lazy(() => import("@/pages/lab/LabNavigation"));
-const LabPatterns = lazy(() => import("@/pages/lab/LabPatterns"));
-const LabTemplates = lazy(() => import("@/pages/lab/LabTemplates"));
-
 export const publicRoutes = (
   <>
     <Route path="/" element={<PageTransition><Index /></PageTransition>} />
@@ -54,9 +60,10 @@ export const publicRoutes = (
     <Route path="/portfolio/:slug" element={<PageTransition><ProjectPage /></PageTransition>} />
     <Route path="/locations" element={<PageTransition><LocationsPage /></PageTransition>} />
     <Route path="/locations/:city" element={<PageTransition><LocationPage /></PageTransition>} />
+    {DEV && (
+      <>
     <Route path="/system-blueprint" element={<PageTransition><BlueprintPage /></PageTransition>} />
     
-    <Route path="/foundation" element={<Navigate to="/lab/foundations" replace />} />
     <Route path="/lab" element={<PageTransition><LabLayout /></PageTransition>}>
       <Route index element={<Navigate to="overview" replace />} />
       <Route path="overview" element={<LabOverview />} />
@@ -69,6 +76,9 @@ export const publicRoutes = (
       <Route path="patterns" element={<LabPatterns />} />
       <Route path="templates" element={<LabTemplates />} />
     </Route>
+        <Route path="/foundation" element={<Navigate to="/lab/foundations" replace />} />
+      </>
+    )}
     <Route path="/privacy" element={<PageTransition><PrivacyPage /></PageTransition>} />
     <Route path="/privacy-policy" element={<Navigate to="/privacy" replace />} />
     <Route path="/terms" element={<PageTransition><TermsPage /></PageTransition>} />

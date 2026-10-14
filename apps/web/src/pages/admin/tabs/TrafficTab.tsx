@@ -71,7 +71,7 @@ const TrafficTab = ({ date }: TrafficTabProps) => {
   });
 
   // Traffic over time (area chart)
-  const { data: trafficTimeline = [] } = useQuery({
+  const { data: trafficTimeline = [], isError: trafficTimelineError } = useQuery({
     queryKey: ["traffic-timeline", date],
     queryFn: async () => {
       const from = currentFrom ? startOfDay(currentFrom).toISOString() : subDays(new Date(), 30).toISOString();
@@ -81,7 +81,8 @@ const TrafficTab = ({ date }: TrafficTabProps) => {
         body: { action: "traffic-timeline", from, to }
       });
       
-      if (error || !data) return [];
+      if (error) throw error;
+      if (!data) return [];
       
       // PostHog returns dates as "YYYY-MM-DD", let's map to "MMM d"
       return (data as { name: string, views: number }[]).map((d) => ({
@@ -92,7 +93,7 @@ const TrafficTab = ({ date }: TrafficTabProps) => {
   });
 
   // Top pages
-  const { data: topPages = [] } = useQuery({
+  const { data: topPages = [], isError: topPagesError } = useQuery({
     queryKey: ["top-pages", date],
     queryFn: async () => {
       const from = fromIso || subDays(new Date(), 30).toISOString();
@@ -102,13 +103,14 @@ const TrafficTab = ({ date }: TrafficTabProps) => {
         body: { action: "top-pages", from, to }
       });
       
-      if (error || !data) return [];
+      if (error) throw error;
+      if (!data) return [];
       return data;
     },
   });
 
   // Traffic by hour (bar chart)
-  const { data: hourlyData = [] } = useQuery({
+  const { data: hourlyData = [], isError: hourlyDataError } = useQuery({
     queryKey: ["traffic-hourly", date],
     queryFn: async () => {
       const from = fromIso || subDays(new Date(), 30).toISOString();
@@ -118,13 +120,14 @@ const TrafficTab = ({ date }: TrafficTabProps) => {
         body: { action: "traffic-hourly", from, to }
       });
       
-      if (error || !data) return [];
+      if (error) throw error;
+      if (!data) return [];
       return data;
     },
   });
 
   // Device/referrer breakdown
-  const { data: sourceBreakdown = [] } = useQuery({
+  const { data: sourceBreakdown = [], isError: sourceBreakdownError } = useQuery({
     queryKey: ["traffic-sources", date],
     queryFn: async () => {
       const from = fromIso || subDays(new Date(), 30).toISOString();
@@ -134,7 +137,8 @@ const TrafficTab = ({ date }: TrafficTabProps) => {
         body: { action: "traffic-sources", from, to }
       });
       
-      if (error || !data) return [];
+      if (error) throw error;
+      if (!data) return [];
       return data;
     },
   });
@@ -160,7 +164,7 @@ const TrafficTab = ({ date }: TrafficTabProps) => {
           value={fmt(stats?.uniqueVisitors)}
           numericValue={stats?.uniqueVisitors}
           change="Distinct sessions"
-          trend="up"
+          trend="neutral"
           icon={Users}
           variant="secondary"
           isLoading={isLoading}
@@ -179,7 +183,7 @@ const TrafficTab = ({ date }: TrafficTabProps) => {
           value={fmt(stats?.engagementEvents)}
           numericValue={stats?.engagementEvents}
           change="Clicks, scrolls, reads"
-          trend="up"
+          trend="neutral"
           icon={Zap}
           variant="gold"
           isLoading={isLoading}
@@ -187,11 +191,11 @@ const TrafficTab = ({ date }: TrafficTabProps) => {
       </div>
 
       {/* PostHog error banner */}
-      {isError && !isLoading && (
+      {(isError || trafficTimelineError || topPagesError || hourlyDataError || sourceBreakdownError) && !isLoading && (
         <div className="rounded-xl border border-[hsl(var(--admin-warning))]/30 bg-[hsl(var(--admin-warning))]/5 px-5 py-3 flex items-center gap-3 text-sm">
           <span className="w-2 h-2 rounded-full bg-[hsl(var(--admin-warning))] shrink-0" />
           <span className="text-[hsl(var(--admin-warning))] font-medium">Analytics unavailable</span>
-          <span className="text-[hsl(var(--admin-text-muted))]">PostHog could not be reached. Traffic data shown below may be stale or empty — not zero.</span>
+          <span className="text-[hsl(var(--admin-text-muted))]">PostHog could not be reached for part of this page. Anything empty below may be missing data, not zero traffic.</span>
         </div>
       )}
 

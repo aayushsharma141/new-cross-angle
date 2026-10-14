@@ -977,17 +977,7 @@ const ResultsReveal: React.FC<Props> = ({ scores, archetype, aiResult, sessionId
               <div className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
               {archetype.ctaText || "Book Design Review"}
             </motion.a>
-            <a
-              href="/system-blueprint"
-              className="px-12 py-5 border border-white/10 text-white/40 text-xs font-semibold tracking-[0.3em] uppercase rounded-sm hover:border-white/30 hover:text-white transition-all"
-            >
-              Explore System Blueprint
-            </a>
           </div>
-
-          <p className="mt-16 text-[10px] font-mono uppercase tracking-[0.4em] text-white/20">
-            Limited slots open for Q2 2026 Manifestations
-          </p>
         </motion.div>
       </section>
 

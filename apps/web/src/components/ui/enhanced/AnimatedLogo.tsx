@@ -120,8 +120,9 @@ export const AnimatedLogo: React.FC<AnimatedLogoProps> = ({
         variants={word1Variants}
         initial="hidden"
         animate="visible"
+        data-shine={word1}
         className={cn(
-          "flex mr-2 lg:mr-2.5 xl:mr-3.5 logo-word-crossangle relative z-10 font-bold text-foreground",
+          "flex mr-2 lg:mr-2.5 xl:mr-3.5 logo-word-crossangle logo-shine relative z-10 font-bold text-foreground",
           sizeClass
         )}
       >
@@ -140,8 +141,9 @@ export const AnimatedLogo: React.FC<AnimatedLogoProps> = ({
         variants={word2Variants}
         initial="hidden"
         animate="visible"
+        data-shine={word2}
         className={cn(
-          "flex logo-word-interior relative z-10 font-bold text-primary",
+          "flex logo-word-interior logo-shine relative z-10 font-bold text-primary",
           sizeClass
         )}
       >

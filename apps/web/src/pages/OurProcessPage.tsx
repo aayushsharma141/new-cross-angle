@@ -8,6 +8,7 @@ import ProcessStages from "@/components/process/ProcessStages";
 import ProcessFAQ from "@/components/process/ProcessFAQ";
 import { PageHero } from "@/components/motion/PageHero";
 import { textLinkClass } from "@/components/editorial";
+import { useSiteContent } from "@/content/useSiteContent";
 
 /**
  * Our Process — the five stages, once.
@@ -16,13 +17,15 @@ import { textLinkClass } from "@/components/editorial";
  * the page-aware closing CTA.
  */
 const OurProcessPage = () => {
+  const seo = useSiteContent("process.seo");
+  const hero = useSiteContent("process.hero");
   return (
     <>
       <Helmet>
-        <title>Our Process | Cross Angle Interior</title>
-        <meta name="description" content="A contractually-guaranteed 5-stage turnkey interior design process. From consultation to handover — see timelines, budgets, and what you can expect at every stage." />
-        <meta property="og:title" content="Our Process | Cross Angle Interior" />
-        <meta property="og:description" content="A contractually-guaranteed 5-stage turnkey interior design process. From consultation to handover — see timelines, budgets, and what you can expect at every stage." />
+        <title>{seo.title}</title>
+        <meta name="description" content={seo.description} />
+        <meta property="og:title" content={seo.ogTitle || seo.title} />
+        <meta property="og:description" content={seo.ogDescription || seo.description} />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://crossangleinterior.com/our-process" />
         <link rel="canonical" href="https://crossangleinterior.com/our-process" />
@@ -32,17 +35,17 @@ const OurProcessPage = () => {
 
       <main id="main-content" className="relative z-10 min-h-screen bg-[var(--s-canvas-primary)] text-white">
         <PageHero
-          kicker="How we work"
-          lines={["From your first idea", <span key="l2" className="italic font-light text-[#C9A85C]">to your finished space</span>]}
-          lede="A contractually-guaranteed 5-stage system that eliminates guesswork, protects your budget, and delivers on time. No ambiguity from the first brief to the final handover."
+          kicker={hero.kicker}
+          lines={[hero.lineLead, ...(hero.lineEmphasis ? [<span key="l2" className="italic font-light text-[#C9A85C]">{hero.lineEmphasis}</span>] : [])]}
+          lede={hero.lede}
           image={{ entity: "our-process", fallback: "/blueprint_shell.jpg", alt: "" }}
           actions={
             <>
               <Link to="/contact-us" className={textLinkClass}>
-                Book a free consultation <span aria-hidden="true">→</span>
+                {hero.primaryLabel} <span aria-hidden="true">→</span>
               </Link>
               <a href="#process" className={textLinkClass}>
-                Explore the 5 stages <span aria-hidden="true">↓</span>
+                {hero.anchorLabel} <span aria-hidden="true">↓</span>
               </a>
             </>
           }

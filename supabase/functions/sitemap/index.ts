@@ -104,6 +104,9 @@ Deno.serve(async (req) => {
     const staticPages = [
       { path: "",             priority: "1.0",  freq: "weekly"  },
       { path: "/about-us",    priority: "0.8",  freq: "monthly" },
+      { path: "/our-process", priority: "0.8",  freq: "monthly" },
+      { path: "/locations",   priority: "0.7",  freq: "monthly" },
+      { path: "/aesthetic-discovery-engine", priority: "0.7", freq: "monthly" },
       { path: "/services",    priority: "0.9",  freq: "weekly"  },
       { path: "/gallery",     priority: "0.8",  freq: "weekly"  },
       { path: "/portfolio",   priority: "0.8",  freq: "weekly"  },

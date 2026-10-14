@@ -8,6 +8,7 @@ import { ProjectArchive } from "@/components/portfolio/ProjectArchive";
 import { ClientPerspective } from "@/components/portfolio/ClientPerspective";
 import { SchemaMarkup } from "@/components/shared/SchemaMarkup";
 import { Container, Eyebrow, DisplayHeading, Body, Em, EASE_OUT_EXPO } from "@/components/editorial";
+import { useSiteContent } from "@/content/useSiteContent";
 
 /**
  * Portfolio — the archive is the page.
@@ -15,16 +16,16 @@ import { Container, Eyebrow, DisplayHeading, Body, Em, EASE_OUT_EXPO } from "@/c
  * A compact header, then straight into the filterable project grid;
  * narrative lives on the home page chapters, not here.
  */
-const PortfolioPage = () => (
+const PortfolioPage = () => {
+  const seo = useSiteContent("portfolio.seo");
+  const header = useSiteContent("portfolio.header");
+  return (
   <>
     <Helmet>
-      <title>Portfolio | Cross Angle Interior - Immersive Portfolio</title>
-      <meta
-        name="description"
-        content="Explore our cinematic portfolio of luxury interiors. From modular kitchens to peaceful bedrooms, experience spaces designed for real lifestyles."
-      />
-      <meta property="og:title" content="Portfolio | Cross Angle Interior" />
-      <meta property="og:description" content="Explore our cinematic portfolio of luxury interiors — spaces designed for real lifestyles." />
+      <title>{seo.title}</title>
+      <meta name="description" content={seo.description} />
+      <meta property="og:title" content={seo.ogTitle || seo.title} />
+      <meta property="og:description" content={seo.ogDescription || seo.description} />
       <meta property="og:type" content="website" />
       <meta property="og:url" content="https://crossangleinterior.com/portfolio" />
       <link rel="canonical" href="https://crossangleinterior.com/portfolio" />
@@ -52,14 +53,11 @@ const PortfolioPage = () => (
           transition={{ duration: 0.9, ease: EASE_OUT_EXPO }}
           className="max-w-3xl"
         >
-          <Eyebrow className="mb-8">Selected work</Eyebrow>
+          <Eyebrow className="mb-8">{header.eyebrow}</Eyebrow>
           <DisplayHeading as="h1" size="lg" className="mb-6">
-            A collection of <Em>curated spaces.</Em>
+            {header.headingLead} <Em>{header.headingEmphasis}</Em>
           </DisplayHeading>
-          <Body className="max-w-xl">
-            Residences, workplaces and hospitality interiors delivered turn-key across Jamshedpur and beyond —
-            each one a record of material restraint and spatial clarity.
-          </Body>
+          <Body className="max-w-xl">{header.intro}</Body>
         </motion.div>
       </Container>
 
@@ -71,6 +69,7 @@ const PortfolioPage = () => (
     <Footer />
     <ScrollToTop />
   </>
-);
+  );
+};
 
 export default PortfolioPage;

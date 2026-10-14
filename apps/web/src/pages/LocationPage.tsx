@@ -1,5 +1,5 @@
 import { useParams, Navigate } from "react-router-dom";
-import { findArea } from "@/config/service-area";
+import { useSiteContent } from "@/content/useSiteContent";
 
 /**
  * `/locations/:city` no longer renders a page of its own.
@@ -9,12 +9,12 @@ import { findArea } from "@/config/service-area";
  * that would justify separate pages — so all of them live as anchors on
  * `/locations` instead. Redirecting keeps every existing link working.
  *
- * Give an area `hasOwnPage: true` in `config/service-area.ts` (and add a route)
- * once it has enough of its own content to stand alone.
+ * Areas are edited in admin → Website Content → Site Content → Locations page.
  */
 const LocationPage = () => {
   const { city } = useParams<{ city: string }>();
-  const area = findArea(city);
+  const { bands } = useSiteContent("locations.areas");
+  const area = bands.flatMap((band) => band.areas).find((a) => a.slug === city?.toLowerCase());
 
   return <Navigate to={area ? `/locations#${area.slug}` : "/locations"} replace />;
 };

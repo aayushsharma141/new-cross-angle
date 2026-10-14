@@ -2,6 +2,12 @@ import type { Lead } from "@/repositories/interfaces/LeadRepository";
 
 export type { Lead };
 
+/**
+ * Keep in step with supabase/functions/_lib/leadScoring.ts (the authoritative
+ * copy). lead-scoring-parity.test.ts fails if the two formulas disagree.
+ */
+export const SCORE_VERSION = "v1";
+
 // ============================================================
 // TYPES
 // ============================================================
@@ -112,7 +118,7 @@ export function calculateLeadScoreBreakdown(lead: Partial<Lead>): LeadScoreDetai
   if (src.includes("referral")) source = 15;
   else if (src.includes("organic") || src.includes("google") || src.includes("website") || src === "website_contact") source = 12;
   else if (src.includes("estimator")) source = 12; // high intent tool
-  else if (src.includes("style_quiz")) source = 10;
+  else if (src.includes("style_quiz") || src.includes("aesthetic_discovery_engine")) source = 10;
   else if (src.includes("social") || src.includes("instagram") || src.includes("facebook")) source = 8;
   else if (src.includes("paid") || src.includes("ad")) source = 6;
   else source = 5;
@@ -278,7 +284,7 @@ export const HYGIENE_RULES = {
 // ============================================================
 
 export interface PipelineForecast {
-  committed: number;      // Won + negotiation budget total
+  committed: number;      // Won + closing budget total
   bestCase: number;       // All open pipeline weighted
   atRisk: Lead[];         // Hot leads inactive > 7 days
   stale: Lead[];          // Any lead inactive > threshold
@@ -289,7 +295,7 @@ export function buildForecast(leads: Lead[]): PipelineForecast {
   const openLeads = leads.filter((l) => l.status !== "won" && l.status !== "lost");
 
   const committed = leads
-    .filter((l) => l.status === "won" || l.status === "negotiation" || l.status === "final_review")
+    .filter((l) => l.status === "won" || l.status === "closing")
     .reduce((acc, l) => acc + (l.budget_value_inr ?? 0), 0);
 
   const bestCase = openLeads.reduce((acc, l) => acc + getWeightedValue(l), 0);

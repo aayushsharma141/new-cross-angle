@@ -58,24 +58,42 @@ export interface DeviceStat {
   pct: number;
 }
 
+/**
+ * Stage keys exactly as the quiz emits them: DiscoveryEngine sends `Stage[stage]`,
+ * the TypeScript enum member name. This list previously held snake_case names
+ * ("welcome", "reflection", "adjective_selection") from a retired version of the
+ * quiz, so every lookup missed and the funnel could not resolve a single stage.
+ * Keep in sync with the Stage enum in src/types/discovery.ts.
+ */
 export const STAGE_ORDER = [
-  "welcome", "reflection", "lifestyle", "visual_instinct",
-  "adjective_selection", "emotional_mapping", "material_resonance",
-  "light_calibration", "pattern_preview", "analysis", "results",
+  "Welcome", "PhysicalSpace", "Timeline", "MorningRoutine", "KitchenUsage",
+  "EntertainmentStyle", "RoomPriority", "VisualInstinct", "ReinterpretationGate",
+  "DesignIdentity", "Atmosphere", "Constraints", "MaterialIdentity",
+  "LivingPreferences", "PivotQuestion", "BudgetAlignment", "Analysis",
+  "MiniResult", "LeadCapture", "Results",
 ];
 
 export const STAGE_LABELS: Record<string, string> = {
-  welcome: "Welcome",
-  reflection: "Reflection",
-  lifestyle: "Lifestyle",
-  visual_instinct: "Visual Instinct",
-  adjective_selection: "Adjectives",
-  emotional_mapping: "Emotional",
-  material_resonance: "Material",
-  light_calibration: "Light",
-  pattern_preview: "Pattern",
-  analysis: "Analysis",
-  results: "Results",
+  Welcome: "Welcome",
+  PhysicalSpace: "Physical Space",
+  Timeline: "Timeline",
+  MorningRoutine: "Morning Routine",
+  KitchenUsage: "Kitchen Usage",
+  EntertainmentStyle: "Entertaining",
+  RoomPriority: "Room Priority",
+  VisualInstinct: "Visual Instinct",
+  ReinterpretationGate: "Reinterpretation",
+  DesignIdentity: "Design Identity",
+  Atmosphere: "Atmosphere",
+  Constraints: "Constraints",
+  MaterialIdentity: "Materials",
+  LivingPreferences: "Living Preferences",
+  PivotQuestion: "Pivot Question",
+  BudgetAlignment: "Budget",
+  Analysis: "Analysis",
+  MiniResult: "First Result",
+  LeadCapture: "Contact Details",
+  Results: "Full Results",
 };
 
 export const DEVICE_ICONS: Record<string, typeof Monitor> = {
@@ -160,38 +178,131 @@ export function computeModeStats(sessions: SessionRow[]): ModeStats[] {
 }
 
 export function computeDropoffs(sessions: SessionRow[]): StageDropoff[] {
-  const incomplete = sessions.filter((s) => !s.is_completed);
+  const incomplete = sessions.filter((s) => !s.is_completed && s.last_stage);
   const counts: Record<string, number> = {};
   for (const s of incomplete) {
-    if (!s.last_stage) continue;
-    counts[s.last_stage] = (counts[s.last_stage] ?? 0) + 1;
+    counts[s.last_stage as string] = (counts[s.last_stage as string] ?? 0) + 1;
   }
   const total = incomplete.length || 1;
   return STAGE_ORDER
     .filter((stage) => counts[stage])
-    .map((stage) => ({
-      stage,
-      count: counts[stage],
-      pct: (counts[stage] / total) * 100,
-    }))
+    .map((stage) => ({ stage, count: counts[stage], pct: (counts[stage] / total) * 100 }))
     .sort((a, b) => b.count - a.count);
 }
 
-export function computeFunnel(sessions: SessionRow[]): { stage: string; count: number; pct: number }[] {
-  const stageCounts: Record<string, number> = {};
+export interface FunnelStep {
+  stage: string;
+  /** Sessions that reached this stage or any later one. */
+  count: number;
+  /** Share of all sessions that got this far. */
+  pct: number;
+  /** Sessions lost between the previous stage and this one. */
+  droppedFromPrev: number;
+  /** Those losses as a share of the previous stage. */
+  dropPctFromPrev: number;
+}
+
+/**
+ * A session counts toward a stage when it reached that stage OR any later one,
+ * which is what makes the curve monotonic and the step-to-step losses real.
+ * Quick mode skips stages, so "furthest reached" is the only sound measure —
+ * counting only stages explicitly viewed would read a skipped step as a drop.
+ */
+export function computeFunnel(sessions: SessionRow[]): FunnelStep[] {
+  const reachedIdx = sessions.map((s) => STAGE_ORDER.indexOf(s.last_stage ?? ""));
+  const total = sessions.length;
+
+  let prevCount = 0;
+  return STAGE_ORDER.map((stage, i) => {
+    const count = reachedIdx.filter((idx) => idx >= i).length;
+    const droppedFromPrev = i === 0 ? 0 : Math.max(0, prevCount - count);
+    const dropPctFromPrev = i === 0 || prevCount === 0 ? 0 : (droppedFromPrev / prevCount) * 100;
+    prevCount = count;
+    return {
+      stage,
+      count,
+      pct: total > 0 ? (count / total) * 100 : 0,
+      droppedFromPrev,
+      dropPctFromPrev,
+    };
+  });
+}
+
+/** Distribution of the style identities finished sessions landed on. */
+export function computeArchetypeBreakdown(sessions: SessionRow[]): { name: string; value: number }[] {
+  const counts: Record<string, number> = {};
   for (const s of sessions) {
-    const lastIdx = STAGE_ORDER.indexOf(s.last_stage ?? "");
-    for (let i = 0; i <= lastIdx; i++) {
-      const stage = STAGE_ORDER[i];
-      stageCounts[stage] = (stageCounts[stage] ?? 0) + 1;
-    }
+    const archetype = typeof s.answers.archetype === "string" ? s.answers.archetype : null;
+    if (!archetype) continue;
+    counts[archetype] = (counts[archetype] ?? 0) + 1;
   }
-  const total = sessions.length || 1;
-  return STAGE_ORDER.map((stage) => ({
-    stage,
-    count: stageCounts[stage] ?? 0,
-    pct: ((stageCounts[stage] ?? 0) / total) * 100,
-  }));
+  return Object.entries(counts)
+    .map(([name, value]) => ({ name, value }))
+    .sort((a, b) => b.value - a.value);
+}
+
+/** Quiz event types the admin analytics page reconstructs sessions from. */
+export const QUIZ_EVENT_TYPES = [
+  "quiz_started", "quiz_step_viewed", "quiz_step_completed", "quiz_completed",
+  "result_loaded", "lead_gate_viewed", "lead_gate_submitted",
+];
+
+/**
+ * Rebuilds one row per real quiz session from the raw analytics_events stream.
+ *
+ * Replaces the previous approach, which expanded daily `quiz_started` /
+ * `quiz_completed` totals into placeholder sessions. Those carried no stage, no
+ * user agent and no answers, so the funnel, drop-offs, device panels and service
+ * split were all derived from values the loader had invented.
+ */
+export function buildSessionsFromEvents(events: EventRow[]): SessionRow[] {
+  const grouped = new Map<string, EventRow[]>();
+  for (const e of events) {
+    if (!e.analytics_session_id) continue;
+    const list = grouped.get(e.analytics_session_id);
+    if (list) list.push(e);
+    else grouped.set(e.analytics_session_id, [e]);
+  }
+
+  const sessions: SessionRow[] = [];
+  for (const [id, list] of grouped) {
+    const ordered = [...list].sort(
+      (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+    );
+    const completedEvent = ordered.find((e) => e.event_type === "quiz_completed");
+    const startedEvent = ordered.find((e) => e.event_type === "quiz_started");
+
+    let furthestIdx = -1;
+    for (const e of ordered) {
+      const idx = STAGE_ORDER.indexOf(e.stage_name ?? "");
+      if (idx > furthestIdx) furthestIdx = idx;
+    }
+    // A finished quiz has reached the end even if the last stage event was missed.
+    if (completedEvent) furthestIdx = Math.max(furthestIdx, STAGE_ORDER.indexOf("Results"));
+
+    const totalSeconds = completedEvent?.meta.totalSeconds;
+    const archetype = completedEvent?.meta.archetype;
+
+    sessions.push({
+      id,
+      started_at: startedEvent?.created_at ?? ordered[0].created_at,
+      completed_at: completedEvent?.created_at ?? null,
+      mode: typeof startedEvent?.meta.mode === "string" ? startedEvent.meta.mode : "unknown",
+      is_completed: Boolean(completedEvent),
+      last_stage: furthestIdx >= 0 ? STAGE_ORDER[furthestIdx] : null,
+      completion_time_seconds: typeof totalSeconds === "number" ? totalSeconds : null,
+      user_agent: typeof startedEvent?.meta.userAgent === "string" ? startedEvent.meta.userAgent : null,
+      answers: {
+        archetype: typeof archetype === "string" ? archetype : undefined,
+        leadGateViewed: ordered.some((e) => e.event_type === "lead_gate_viewed"),
+        leadGateSubmitted: ordered.some((e) => e.event_type === "lead_gate_submitted"),
+      },
+    });
+  }
+
+  return sessions.sort(
+    (a, b) => new Date(b.started_at).getTime() - new Date(a.started_at).getTime()
+  );
 }
 
 export function computeBreakdown(sessions: SessionRow[], key: "browser" | "os" | "device"): DeviceStat[] {

@@ -56,6 +56,22 @@ export { SUPABASE_URL };
 // The proxy URL is for edge functions only (to avoid exposing the anon key
 // in the request from the browser to the edge function layer).
 
+/**
+ * Call an edge function over the `/api/supabase` proxy, returning the raw
+ * Response.
+ *
+ * `invokeEdge` covers the JSON-in/JSON-out case. Use this when the request or
+ * the response is not JSON — a FormData upload, a zip download — where you need
+ * the Response itself. Both travel the proxy path, so middleware.ts (prod) and
+ * the Vite proxy (dev) inject the HTTP-only access_token as Authorization.
+ *
+ * Never fetch `${VITE_SUPABASE_URL}/functions/v1/...` directly from the browser:
+ * that skips the proxy, so no cookie is injected and the call is unauthenticated.
+ */
+export function edgeFetch(functionName: string, init?: RequestInit): Promise<Response> {
+  return authedFetch(`${PROXY_URL}/functions/v1/${functionName}`, init);
+}
+
 export async function invokeEdge<T = unknown>(
   functionName: string,
   body: Record<string, unknown>,

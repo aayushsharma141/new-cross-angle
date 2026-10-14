@@ -38,7 +38,7 @@ function Counter({ label, value, onChange, min = 0, max = 20 }: {
                     aria-label={`Decrease ${label}`}
                     disabled={value <= min}
                     onClick={() => onChange(Math.max(min, value - 1))}
-                    className="w-7 h-7 flex items-center justify-center rounded-full border text-base transition-all duration-200 bg-kiro-surface border-kiro-ink/[0.08] text-kiro-ink/80 hover:bg-kiro-accent hover:text-white hover:border-kiro-accent hover:scale-105 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kiro-accent"
+                    className="w-9 h-9 flex items-center justify-center rounded-full border text-base transition-all duration-200 bg-kiro-surface border-kiro-ink/[0.08] text-kiro-ink/80 hover:bg-kiro-accent hover:text-white hover:border-kiro-accent hover:scale-105 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kiro-accent"
                 >
                     −
                 </button>
@@ -48,7 +48,7 @@ function Counter({ label, value, onChange, min = 0, max = 20 }: {
                     aria-label={`Increase ${label}`}
                     disabled={value >= max}
                     onClick={() => onChange(Math.min(max, value + 1))}
-                    className="w-7 h-7 flex items-center justify-center rounded-full border text-base transition-all duration-200 bg-kiro-surface border-kiro-ink/[0.08] text-kiro-ink/80 hover:bg-kiro-accent hover:text-white hover:border-kiro-accent hover:scale-105 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kiro-accent"
+                    className="w-9 h-9 flex items-center justify-center rounded-full border text-base transition-all duration-200 bg-kiro-surface border-kiro-ink/[0.08] text-kiro-ink/80 hover:bg-kiro-accent hover:text-white hover:border-kiro-accent hover:scale-105 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kiro-accent"
                 >
                     +
                 </button>
@@ -118,11 +118,11 @@ export function StepPropertyDetails({ formData, updateField, updateFields }: Pro
         updateField("renovationRooms", rooms);
     };
 
-    const labelStyle = "block text-sm font-medium mb-2 text-gray-500";
+    const labelStyle = "block text-sm font-medium mb-2 text-kiro-inkSoft";
 
     return (
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-8 lg:gap-12">
+            <div className="grid grid-cols-1 2xl:grid-cols-[1fr_340px] gap-8 2xl:gap-12">
                 {/* ── Left: Configuration & Counters ── */}
                 <div className="space-y-8">
                     {/* ── BHK selection ── */}
@@ -137,7 +137,7 @@ export function StepPropertyDetails({ formData, updateField, updateFields }: Pro
                                             type="button"
                                             key={bhk}
                                             onClick={() => applyBHK(bhk)}
-                                            className={`${selectableCardClassLight(active, `px-4.5 py-2 text-sm ${active ? "font-bold text-kiro-accent" : "font-normal text-kiro-ink/80"}`)} ${active ? "bg-[#7a5c30]/[0.12]" : "bg-white/70 hover:bg-[#7a5c30]/[0.05]"}`}
+                                            className={`${selectableCardClassLight(active, `px-5 py-3 text-sm ${active ? "font-bold text-kiro-accent" : "font-normal text-kiro-ink/80"}`)} ${active ? "bg-kiro-accent/[0.12]" : "bg-white/70 hover:bg-kiro-accent/[0.05]"}`}
                                         >
                                             {active && (
                                                 <span
@@ -212,7 +212,7 @@ export function StepPropertyDetails({ formData, updateField, updateFields }: Pro
                                         <Counter label="Total Floors" value={formData.floors} min={1} onChange={v => updateField("floors", v)} />
                                     </div>
                                     <div>
-                                        <span className="block text-xs font-medium mb-2 text-gray-500">Which Floor?</span>
+                                        <span className="block text-xs font-medium mb-2 text-kiro-inkSoft">Which Floor?</span>
                                         <div className="flex flex-wrap gap-2">
                                             {["Ground", "1st", "2nd", "3rd", "4th+"].map(f => {
                                                 const active = formData.floorNumber === f;
@@ -264,7 +264,7 @@ export function StepPropertyDetails({ formData, updateField, updateFields }: Pro
                                     </div>
                                     {formData.renovationScope === "room" && (
                                         <div className="mt-5">
-                                            <span className="block text-xs font-medium mb-2 text-gray-500">Select Rooms to Renovate</span>
+                                            <span className="block text-xs font-medium mb-2 text-kiro-inkSoft">Select Rooms to Renovate</span>
                                             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                                                 {renovationRooms.map(r => (
                                                     <ToggleChip
@@ -284,10 +284,10 @@ export function StepPropertyDetails({ formData, updateField, updateFields }: Pro
                     )}
                 </div>
 
-                {/* ── Right: Area Slider ── */}
+                {/* ── Area: beside the counters on very wide screens, below them otherwise (never above the BHK chips, so they do not jump when it appears) ── */}
                 <div>
                     {(!((isApartment || isVilla || isTurnkey) && !formData.bhk)) && (
-                        <div className="animate-in fade-in slide-in-from-top-4 duration-500 sticky top-6">
+                        <div className="animate-in fade-in slide-in-from-top-4 duration-500 2xl:sticky 2xl:top-6">
                             <div className="bg-kiro-surface/50 border border-kiro-ink/5 rounded-xl p-6 backdrop-blur-sm">
                                 <label htmlFor="area-slider" className={labelStyle}>
                                     Carpet Area

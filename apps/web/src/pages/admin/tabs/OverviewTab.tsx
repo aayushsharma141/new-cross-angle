@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { percentChange, describeChange, trendDirection } from "@/lib/trend";
 import { supabase } from "@/integrations/supabase/client";
 import { InsightCard } from "@/components/admin/dashboard/InsightCard";
 import { AdminKPI } from "@/components/admin/dashboard/AdminKPI";
@@ -88,7 +89,7 @@ const OverviewTab = ({ date, changeTab }: OverviewTabProps) => {
       const conversionRate = totalLeads > 0 ? Math.round((wonLeads / totalLeads) * 100) : 0;
 
       const prevLeadsCount = prevLeadsRes.count || 0;
-      const leadsTrend = prevLeadsCount > 0 ? Math.round(((totalLeads - prevLeadsCount) / prevLeadsCount) * 100) : totalLeads > 0 ? 100 : 0;
+      const leadsTrend = percentChange(totalLeads, prevLeadsCount);
 
       const estimates = estimateRes.data || [];
       const pipelineValue = estimates.reduce((sum: number, e) => sum + (Number(e.estimated_min) || 0), 0);
@@ -173,8 +174,8 @@ const OverviewTab = ({ date, changeTab }: OverviewTabProps) => {
           title="Total Leads"
           value={fmt(stats?.leads)}
           numericValue={stats?.leads}
-          change={stats ? `${stats.leadsTrend > 0 ? "+" : ""}${stats.leadsTrend}% vs previous period` : "…"}
-          trend={stats?.leadsTrend === 0 ? "neutral" : (stats?.leadsTrend || 0) > 0 ? "up" : "down"}
+          change={stats ? describeChange(stats.leadsTrend) : "…"}
+          trend={trendDirection(stats?.leadsTrend ?? null)}
           icon={Users}
           variant="gold"
           isLoading={isLoading}
@@ -184,7 +185,7 @@ const OverviewTab = ({ date, changeTab }: OverviewTabProps) => {
           title="Estimated Pipeline Value"
           value={`₹${((stats?.pipelineValue || 0) / 100000).toFixed(1)}L`}
           change="From estimator submissions"
-          trend="up"
+          trend="neutral"
           icon={TrendingUp}
           variant="accent"
           isLoading={isLoading}
@@ -204,7 +205,7 @@ const OverviewTab = ({ date, changeTab }: OverviewTabProps) => {
           value={fmt(stats?.pageViews)}
           numericValue={stats?.pageViews}
           change="Website traffic in period"
-          trend="up"
+          trend="neutral"
           icon={Eye}
           variant="secondary"
           isLoading={isLoading}

@@ -165,7 +165,16 @@ Deno.serve(async (req) => {
     return okResponse(req, result, { credentialed: true }, undefined, undefined, requestId);
 
   } catch (error) {
-    structuredLog("error", FN, "Failed to query PostHog", { error: String(error) }, requestId);
-    return serverErrorResponse(req, "Failed to query PostHog", { credentialed: true }, FN, error, requestId);
+    structuredLog("error", FN, "Failed to query PostHog", { error: String(error), action }, requestId);
+    // This endpoint is admin-only (verifyAdmin above), so return PostHog's own
+    // status and message. The previous generic "Failed to query PostHog" gave
+    // the caller no way to tell an expired key from a bad project id or invalid
+    // HogQL — the same read path the nightly sync uses has been failing since
+    // May without anyone being able to see why.
+    const detail = error instanceof Error ? error.message : String(error);
+    return new Response(
+      JSON.stringify({ error: "Failed to query PostHog", action, detail, request_id: requestId }),
+      { status: 502, headers: { "Content-Type": "application/json" } }
+    );
   }
 });

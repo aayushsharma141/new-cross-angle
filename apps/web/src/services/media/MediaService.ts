@@ -6,7 +6,7 @@
  * re-exports everything from here. Public API surface is unchanged.
  */
 
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, edgeFetch } from "@/integrations/supabase/client";
 import { MediaRepository } from "./MediaRepository";
 import { UploadOrchestrator } from "./UploadOrchestrator";
 import { defaultProvider, resolveProvider } from "./providers";
@@ -41,8 +41,11 @@ export const MediaService = {
   async upload(options: UploadOptions): Promise<UploadResult> {
     const { file, folderId, onProgress } = options;
 
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) throw new Error("Not authenticated");
+    // No client-side session gate here. The browser client runs
+    // persistSession:false — the session is an HTTP-only cookie it cannot read —
+    // so supabase.auth.getSession() always resolves to null and a gate on it
+    // rejects every upload before it starts. Authorization is enforced where it
+    // belongs: verifyAdmin() inside the edge function, and RLS on the tables.
 
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -127,16 +130,13 @@ export const MediaService = {
   },
 
   async exportZip(fileIds: string[], folderIds: string[] = []): Promise<void> {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) throw new Error("Not authenticated");
-
-    const supabaseUrl = (supabase as unknown as { supabaseUrl: string }).supabaseUrl;
-    const resp = await fetch(`${supabaseUrl}/functions/v1/media-export`, {
+    // Routed through edgeFetch (the /api/supabase proxy) so middleware injects
+    // the access_token cookie. The previous direct fetch to supabaseUrl skipped
+    // the proxy entirely, and its Authorization header came from getSession(),
+    // which is always null under persistSession:false — unauthenticated twice over.
+    const resp = await edgeFetch("media-export", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${session.access_token}`,
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ fileIds, folderIds }),
     });
 
@@ -159,19 +159,13 @@ export const MediaService = {
   },
 
   async importZip(zipFile: File, targetFolderId: string | null): Promise<{ message: string }> {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) throw new Error("Not authenticated");
-
-    const supabaseUrl = (supabase as unknown as { supabaseUrl: string }).supabaseUrl;
     const form = new FormData();
     form.append("file", zipFile);
     if (targetFolderId) form.append("targetFolderId", targetFolderId);
 
-    const resp = await fetch(`${supabaseUrl}/functions/v1/media-import`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${session.access_token}` },
-      body: form,
-    });
+    // No Content-Type header: the browser must set it so the multipart boundary
+    // is generated. Routed through the proxy so the cookie is injected.
+    const resp = await edgeFetch("media-import", { method: "POST", body: form });
 
     if (!resp.ok) throw new Error(`Import failed: ${await resp.text()}`);
     return resp.json() as Promise<{ message: string }>;

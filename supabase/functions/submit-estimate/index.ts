@@ -1,7 +1,6 @@
 // Deno.serve is the native Supabase Edge Function entrypoint - no std/http import needed
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import {
-    buildCorsHeaders,
     handlePreflight,
     checkRateLimit,
     getClientId,

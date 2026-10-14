@@ -1,14 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
+import { STORAGE_TOTAL_GB } from "@/hooks/useHubStats";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminKPI } from "@/components/admin/dashboard/AdminKPI";
 import { Database, HardDrive, Shield, Server } from "lucide-react";
 
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow, differenceInCalendarDays, parseISO } from "date-fns";
 import { useSystem } from "@/context/SystemContext";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
 import { DateRange } from "react-day-picker";
 import { usePermissions } from "@/hooks/usePermissions";
+import { useIntegrationLastSeen } from "../_hooks/useIntegrationMetrics";
 import { ResponsiveContainer, BarChart, Bar, XAxis, Tooltip, Cell } from "recharts";
 
 interface SystemTabProps {
@@ -47,8 +49,31 @@ const SystemTab = ({ date: _date }: SystemTabProps) => {
     },
   });
 
+  const { data: lastSeen, isLoading: lastSeenLoading, isError: lastSeenError } = useIntegrationLastSeen();
+
+  // PostHog: reachable gateway is not enough, the nightly rollup must actually be arriving.
+  const analyticsAgeDays = lastSeen?.lastAnalyticsDate
+    ? differenceInCalendarDays(new Date(), parseISO(lastSeen.lastAnalyticsDate))
+    : null;
+  const posthogItem = (() => {
+    if (health.api !== "online") return { ok: false as boolean | null, status: "Unreachable" };
+    if (lastSeenLoading) return { ok: null, status: "Checking…" };
+    if (lastSeenError) return { ok: null, status: "Could not read sync data" };
+    if (analyticsAgeDays === null) return { ok: false, status: "No data synced yet" };
+    if (analyticsAgeDays > 3) return { ok: false, status: `Stale, last sync ${analyticsAgeDays}d ago` };
+    return { ok: true, status: `Synced ${lastSeen?.lastAnalyticsDate}` };
+  })();
+
+  // Resend: emails only go out when leads arrive, so "none yet" is neutral rather than a failure.
+  const resendItem = (() => {
+    if (lastSeenLoading) return { ok: null as boolean | null, status: "Checking…" };
+    if (lastSeenError) return { ok: null, status: "Could not read email log" };
+    if (!lastSeen?.lastEmailAt) return { ok: null, status: "No emails sent yet" };
+    return { ok: true, status: `Last email ${formatDistanceToNow(new Date(lastSeen.lastEmailAt), { addSuffix: true })}` };
+  })();
+
   const storageUsedGB = (sysStats?.mediaBytes || 0) / (1024 * 1024 * 1024);
-  const storageTotalGB = 20;
+  const storageTotalGB = STORAGE_TOTAL_GB;
   const storagePercent = Math.min((storageUsedGB / storageTotalGB) * 100, 100);
 
   const tableData = [
@@ -121,7 +146,7 @@ const SystemTab = ({ date: _date }: SystemTabProps) => {
         </div>
 
         <div className="rounded-2xl border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] p-5">
-          <h3 className="text-xs font-bold text-[hsl(var(--admin-text-muted))] uppercase tracking-widest mb-4">Active Integrations</h3>
+          <h3 className="text-xs font-bold text-[hsl(var(--admin-text-muted))] uppercase tracking-widest mb-4">Integrations</h3>
           <div className="space-y-3">
             {[
               {
@@ -133,17 +158,13 @@ const SystemTab = ({ date: _date }: SystemTabProps) => {
               },
               {
                 name: "PostHog (Analytics)",
-                // Probed via edge function gateway — posthog-query invocation in SystemContext
-                ok: health.api === "online",
-                status: health.api === "online" ? "Reachable" : "Unreachable",
-                probe: "Edge fn gateway",
+                ...posthogItem,
+                probe: "Gateway probe + newest daily sync",
               },
               {
                 name: "Resend (Email)",
-                // Not independently probed — status reflects edge function gateway reachability
-                ok: health.api === "online",
-                status: health.api === "online" ? "Gateway OK" : "Gateway Down",
-                probe: "Not independently probed",
+                ...resendItem,
+                probe: "Newest email activity logged",
               },
               {
                 name: "Vercel (Hosting)",

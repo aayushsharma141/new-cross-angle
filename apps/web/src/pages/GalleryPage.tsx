@@ -12,6 +12,7 @@ import GalleryLightbox from "@/components/gallery/GalleryLightbox";
 import GalleryMasonry, { type MasonryItem } from "@/components/gallery/GalleryMasonry";
 import { useAttentionTelemetry } from "@/hooks/useAttentionTelemetry";
 import { Container, Section, Eyebrow, DisplayHeading, Body, Em, reveal, EASE_OUT_EXPO } from "@/components/editorial";
+import { useSiteContent } from "@/content/useSiteContent";
 
 function useSavedItems(urlBoardIds: string[]) {
   const [saved, setSaved] = useState<string[]>(() => {
@@ -53,6 +54,8 @@ interface GalleryItem extends MasonryItem {
  * its own heading and count; a specific category renders one masonry.
  */
 const GalleryPage = () => {
+  const seo = useSiteContent("gallery.seo");
+  const header = useSiteContent("gallery.header");
   const [searchParams, setSearchParams] = useSearchParams();
   const urlCategory = searchParams.get("category");
   const urlBoard = searchParams.get("board");
@@ -166,11 +169,10 @@ const GalleryPage = () => {
   return (
     <>
       <Helmet>
-        <title>Gallery | Crossangle Interior</title>
-        <meta
-          name="description"
-          content="Browse the Cross Angle Interior gallery — living rooms, bedrooms, kitchens and workspaces from delivered turn-key projects across Jamshedpur."
-        />
+        <title>{seo.title}</title>
+        <meta name="description" content={seo.description} />
+        <meta property="og:title" content={seo.ogTitle || seo.title} />
+        <meta property="og:description" content={seo.ogDescription || seo.description} />
         <link rel="canonical" href="https://crossangleinterior.com/gallery" />
       </Helmet>
 
@@ -186,13 +188,11 @@ const GalleryPage = () => {
             transition={{ duration: 0.9, ease: EASE_OUT_EXPO }}
             className="max-w-3xl"
           >
-            <Eyebrow className="mb-8">The archive</Eyebrow>
+            <Eyebrow className="mb-8">{header.eyebrow}</Eyebrow>
             <DisplayHeading as="h1" size="lg" className="mb-6">
-              Spaces we've <Em>crafted.</Em>
+              {header.headingLead} <Em>{header.headingEmphasis}</Em>
             </DisplayHeading>
-            <Body className="max-w-xl">
-              Rooms from delivered projects — photographed as built, not staged. Open any frame for the full view.
-            </Body>
+            <Body className="max-w-xl">{header.intro}</Body>
           </motion.div>
         </Container>
 

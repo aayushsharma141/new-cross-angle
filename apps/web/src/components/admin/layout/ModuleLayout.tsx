@@ -2,17 +2,16 @@ import React, { createContext, useContext, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { isSectionVisible, type AdminNavSection } from "@/lib/admin/moduleNav";
 import { ModuleBreadcrumb } from "./ModuleBreadcrumb";
-interface ModuleTab {
-    label: string;
-    path: string;
-    group?: string;
-}
+
+type ModuleTab = AdminNavSection;
 
 interface ModuleLayoutProps {
     title: string;
     description?: string;
-    tabs?: ModuleTab[];
+    tabs?: readonly ModuleTab[];
     sidebar?: React.ReactNode;
     children: React.ReactNode;
 }
@@ -32,9 +31,12 @@ export function ModuleActions({ children }: { children: React.ReactNode }) {
     return createPortal(children, target);
 }
 
-export const ModuleLayout = ({ title, description, tabs, sidebar, children }: ModuleLayoutProps) => {
+export const ModuleLayout = ({ title, description, tabs: allTabs, sidebar, children }: ModuleLayoutProps) => {
     const location = useLocation();
+    const { role } = useAuth();
     const [slotEl, setSlotEl] = useState<HTMLDivElement | null>(null);
+    // Hide sections whose own RoleGuard would bounce this role, matching the hub's Module Directory.
+    const tabs = allTabs?.filter((tab) => isSectionVisible(tab, role));
 
     return (
         <ModuleActionsSlotContext.Provider value={slotEl}>

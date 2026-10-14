@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, Loader2, Calculator } from "lucide-react";
 import { Button } from "@/components/ui/primitives/button";
@@ -7,8 +7,10 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { UserSignals, AestheticScores, Archetype } from "@/types/discovery";
-import { trackLeadGateViewed, trackLeadGateSubmitted } from "../infrastructure/analytics/tracker";
+import { trackLeadGateViewed, trackLeadGateSubmitted, type TrackFn } from "../infrastructure/analytics/tracker";
 import { useAnalytics } from "@/analytics/AnalyticsProvider";
+import { track } from "@/analytics/track";
+import { useCookieConsent } from "@/components/cookies/CookieConsentProvider";
 import { saveDiscoveryResult } from "../core/persistence";
 import { buildDiscoveryHandoff } from "@/addons/calculators/components/data/discovery-handoff";
 
@@ -28,7 +30,15 @@ const LeadGatePhase = ({ sessionId, scores, archetype, signals, onComplete }: Pr
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const analytics = useAnalytics();
-    const analyticsTrack = analytics.track.bind(analytics);
+    const { consent } = useCookieConsent();
+    // Dual-write to PostHog and Supabase, consent-gated — see DiscoveryEngine.
+    const analyticsTrack = useCallback<TrackFn>(
+        (event, properties) => {
+            if (consent !== "all") return;
+            track(analytics, event, properties);
+        },
+        [analytics, consent]
+    );
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -148,7 +158,7 @@ const LeadGatePhase = ({ sessionId, scores, archetype, signals, onComplete }: Pr
                 <div className="absolute top-0 left-0 right-0 h-1 bg-[#233526]" />
 
                 <div className="text-center mb-10">
-                    <p className="tracking-[0.15em] text-[10px] uppercase font-bold text-[#5a5a5a] mb-4">ALMOST THERE</p>
+                    <p className="tracking-[0.15em] text-[12px] uppercase font-bold text-[#5a5a5a] mb-4">ALMOST THERE</p>
                     <h2 className="text-3xl md:text-4xl font-semibold mb-4 text-[#1a1a1a] font-serif leading-tight">
                         Save Your Blueprint
                     </h2>
@@ -160,7 +170,7 @@ const LeadGatePhase = ({ sessionId, scores, archetype, signals, onComplete }: Pr
                 <form onSubmit={handleSubmit} className="space-y-5">
                     <div className="space-y-4">
                         <div>
-                            <label htmlFor="name" className="block text-[11px] uppercase tracking-[0.15em] text-[#5a5a5a] mb-2 font-semibold">
+                            <label htmlFor="name" className="block text-[12px] uppercase tracking-[0.15em] text-[#5a5a5a] mb-2 font-semibold">
                                 Full Name *
                             </label>
                             <Input
@@ -182,7 +192,7 @@ const LeadGatePhase = ({ sessionId, scores, archetype, signals, onComplete }: Pr
                             )}
                         </div>
                         <div>
-                            <label htmlFor="email" className="block text-[11px] uppercase tracking-[0.15em] text-[#5a5a5a] mb-2 font-semibold">
+                            <label htmlFor="email" className="block text-[12px] uppercase tracking-[0.15em] text-[#5a5a5a] mb-2 font-semibold">
                                 Email Address *
                             </label>
                             <Input
@@ -204,7 +214,7 @@ const LeadGatePhase = ({ sessionId, scores, archetype, signals, onComplete }: Pr
                             )}
                         </div>
                         <div>
-                            <label htmlFor="phone" className="block text-[11px] uppercase tracking-[0.15em] text-[#5a5a5a] mb-2 font-semibold">
+                            <label htmlFor="phone" className="block text-[12px] uppercase tracking-[0.15em] text-[#5a5a5a] mb-2 font-semibold">
                                 Phone Number <span className="text-[#8c8c8c] lowercase tracking-normal font-normal ml-1">(Optional)</span>
                             </label>
                             <Input
@@ -241,7 +251,7 @@ const LeadGatePhase = ({ sessionId, scores, archetype, signals, onComplete }: Pr
                                 transition={{ duration: 0.4 }}
                                 className="space-y-3"
                             >
-                                <p className="text-center text-[11px] uppercase tracking-[0.15em] text-[#5a5a5a] font-semibold">
+                                <p className="text-center text-[12px] uppercase tracking-[0.15em] text-[#5a5a5a] font-semibold">
                                     Blueprint saved ✓ — what's next?
                                 </p>
                                 {/* Primary: Estimator CTA */}

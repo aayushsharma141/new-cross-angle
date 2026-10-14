@@ -27,6 +27,28 @@ export const WORKSPACE_VARS = {
   "--ws-deep": "#233526",
 } as const;
 
+/**
+ * Light remap of the material + shadcn layers, for tool surfaces that render
+ * the dark-resolved `--s-*` / `text-foreground` tokens (e.g. WorkspacePanel).
+ * Without it a `.dark` visitor gets dark canvas under light-theme content.
+ */
+export const WORKSPACE_MATERIALS = {
+  ...WORKSPACE_VARS,
+  colorScheme: "light",
+  "--m-wall": "#FAF8F5",
+  "--m-floor": "#FAF8F5",
+  "--m-surface": "#F3EFE8",
+  "--m-panel": "#EAE5DC",
+  "--m-line": "rgba(26,26,26,0.10)",
+  "--m-detail": "#1A1A1A",
+  "--m-subtext": "#5A5A5A",
+  "--m-caption": "#8A857E",
+  "--foreground": "0 0% 10%",
+  "--muted-foreground": "0 0% 35%",
+  "--background": "36 33% 97%",
+  "--border": "38 22% 89%",
+} as const;
+
 /* Shared type + control classes so both doors are literally the same styles. */
 export const wsEyebrow = "inline-flex items-center gap-4 text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--ws-bronze)]";
 export const wsRule = "block h-px w-8 bg-[var(--ws-bronze)]/50";

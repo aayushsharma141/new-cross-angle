@@ -1,5 +1,6 @@
 import { Outlet, Navigate, useLocation } from "react-router-dom";
 import { ModuleLayout } from "@/components/admin/layout/ModuleLayout";
+import { getModuleSections } from "@/lib/admin/moduleNav";
 
 export const BlogModule = () => {
     const location = useLocation();
@@ -11,11 +12,7 @@ export const BlogModule = () => {
         <ModuleLayout
             title="Blog & SEO Analytics"
             description="Track blog article performance, reader engagement, and search engine rankings."
-            tabs={[
-                { label: "Overview", path: "/admin/blog/overview", group: "Analytics" },
-                { label: "Article Performance", path: "/admin/blog/article-performance", group: "Analytics" },
-                { label: "Reader Engagement", path: "/admin/blog/reader-engagement", group: "Analytics" },
-            ]}
+            tabs={getModuleSections("blog")}
         >
             <Outlet />
         </ModuleLayout>

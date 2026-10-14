@@ -53,7 +53,7 @@ const ProgressBar = ({ currentStage, variant = "horizontal" }: ProgressBarProps)
                     }`}
                 />
 
-                <span className={`text-xs font-medium tracking-widest uppercase transition-colors duration-300 ${isActive ? "text-primary" : isCompleted ? "text-[#5a5a5a]" : "text-[#5a5a5a]/30"
+                <span className={`text-[12px] font-medium tracking-widest uppercase transition-colors duration-300 ${isActive ? "text-primary" : isCompleted ? "text-[#5a5a5a]" : "text-kiro-inkSoft/60"
                   }`}>
                   {String(s).padStart(2, '0')}. {label}
                 </span>
@@ -66,32 +66,30 @@ const ProgressBar = ({ currentStage, variant = "horizontal" }: ProgressBarProps)
   }
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 h-[2px] bg-[#1a1a1a]/5 backdrop-blur-sm">
-      <motion.div
-        className="h-full relative"
-        style={{
-          background: "linear-gradient(90deg, transparent, hsl(var(--primary)), #fff)",
-          boxShadow: "0 0 15px hsla(var(--primary)/0.6), 0 0 5px #fff",
-        }}
-        initial={{ width: 0 }}
-        animate={{ width: `${progress}%` }}
-        transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-      >
-        {/* Progress Glow Head */}
-        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full blur-md opacity-50" />
-
-        {/* Current Stage Label */}
+    <div
+      role="progressbar"
+      aria-label="Quiz progress"
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={Math.round(progress)}
+      aria-valuetext={STAGE_LABELS[currentStage]}
+      className="fixed inset-x-0 top-0 z-50"
+    >
+      <div className="h-[3px] bg-kiro-ink/10">
         <motion.div
-          className="absolute right-0 top-4 pr-4 whitespace-nowrap"
-          initial={{ opacity: 0, x: 10 }}
-          animate={{ opacity: 1, x: 0 }}
-          key={currentStage}
-        >
-          <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-primary/80 bg-background/80 backdrop-blur-sm px-2 py-0.5 rounded-sm border border-primary/10">
-            {STAGE_LABELS[currentStage]}
-          </span>
-        </motion.div>
-      </motion.div>
+          className="h-full bg-kiro-accent"
+          initial={{ width: 0 }}
+          animate={{ width: `${progress}%` }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        />
+      </div>
+      {/* Label sits at a fixed edge, so it never clips against a short fill */}
+      <span
+        key={currentStage}
+        className="absolute right-4 top-4 text-[12px] font-mono font-bold uppercase tracking-[0.2em] text-kiro-accent animate-in fade-in duration-300 motion-reduce:animate-none"
+      >
+        {STAGE_LABELS[currentStage]}
+      </span>
     </div>
   );
 };

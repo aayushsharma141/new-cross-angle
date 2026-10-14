@@ -7,7 +7,6 @@ import { useSiteMediaSlot } from "@/hooks/useSiteMediaSlot";
 import { getOptimizedUrl } from "@/lib/cdn";
 import { cn } from "@/lib/utils";
 import { ChapterKicker } from "@/components/home/ChapterKicker";
-import { HeroWatermark } from "@/components/home/HeroWatermark";
 import { CursorAura } from "@/components/motion/CursorAura";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
@@ -36,8 +35,6 @@ export interface PageHeroProps {
   image: { entity: string; fallback: string; alt?: string };
   /** Text alignment / column placement. */
   align?: "left" | "center";
-  /** Show the rotating brand seal (top-right). */
-  seal?: boolean;
   className?: string;
   /** Element rendered as the headline — pages that already have an `<h1>` can pass "h2". */
   as?: "h1" | "h2";
@@ -67,7 +64,6 @@ export const PageHero = ({
   meta,
   image,
   align = "left",
-  seal = true,
   className,
   as: Heading = "h1",
   size = "lg",
@@ -102,8 +98,7 @@ export const PageHero = ({
         .to(q("[data-hero-media]"), { scale: 1.1, duration: 1 }, 0)
         .to(q("[data-hero-copy]"), { y: -70, autoAlpha: 0, duration: 0.6 }, 0.15)
         .to(q("[data-hero-aside]"), { y: -40, autoAlpha: 0, duration: 0.6 }, 0.15)
-        .to(q("[data-hero-cue]"), { autoAlpha: 0, duration: 0.2 }, 0)
-        .to(q("[data-hero-seal]"), { rotate: 90, autoAlpha: 0, duration: 0.6 }, 0.1);
+        .to(q("[data-hero-cue]"), { autoAlpha: 0, duration: 0.2 }, 0);
     },
     { scope: ref, dependencies: [prefersReducedMotion] },
   );
@@ -130,12 +125,6 @@ export const PageHero = ({
       </div>
 
       {cursorAura && <CursorAura className="z-[8]" />}
-
-      {seal && (
-        <div data-hero-seal className="absolute top-[14vh] right-6 md:right-16 lg:right-24 z-[9] pointer-events-none will-change-transform">
-          <HeroWatermark />
-        </div>
-      )}
 
       {/* Copy */}
       <div

@@ -16,6 +16,7 @@ test("quiz_started payload is typed correctly", () => {
   expectTypeOf<AnalyticsEventMap["quiz_started"]>().toEqualTypeOf<{
     sessionId: string;
     mode: "quick" | "deep";
+    userAgent?: string;
   }>();
 });
 

@@ -149,13 +149,16 @@ export const Navbar = () => {
                   : "text-base md:text-lg"
               )}
             >
-              <span className={cn(
-                "transition-colors duration-400 motion-reduce:transition-none",
-                overHero ? "text-white" : "text-foreground"
-              )}>
+              <span
+                data-shine="CROSSANGLE"
+                className={cn(
+                  "logo-shine transition-colors duration-400 motion-reduce:transition-none",
+                  overHero ? "text-white" : "text-foreground"
+                )}
+              >
                 CROSSANGLE
               </span>
-              <span className="text-primary">INTERIOR</span>
+              <span data-shine="INTERIOR" className="logo-shine text-primary">INTERIOR</span>
             </motion.span>
           </RouterLink>
 

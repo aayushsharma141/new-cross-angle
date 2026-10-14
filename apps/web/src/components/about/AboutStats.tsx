@@ -1,5 +1,5 @@
 import useCountUp from "@/hooks/useCountUp";
-import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { useStudioStats } from "@/hooks/useSiteSettings";
 import { StatStrip } from "@/components/editorial";
 
 const CountUp = ({ value, suffix, index }: { value: number; suffix: string; index: number }) => {
@@ -14,12 +14,12 @@ const CountUp = ({ value, suffix, index }: { value: number; suffix: string; inde
 
 /** Four studio numbers, CMS-driven via `settings.studio_stats`. */
 const AboutStats = () => {
-  const { settings } = useSiteSettings();
+  const studio = useStudioStats();
   const stats = [
-    { value: settings?.studio_stats?.yearsExperience || 15, suffix: "+", label: "Years of practice" },
-    { value: settings?.studio_stats?.happyClients || 500, suffix: "+", label: "Clients served" },
-    { value: settings?.studio_stats?.projectsCompleted || 750, suffix: "+", label: "Projects delivered" },
-    { value: settings?.studio_stats?.awardsWon || 25, suffix: "+", label: "Design awards" },
+    { value: studio.yearsExperience, suffix: "+", label: "Years of practice" },
+    { value: studio.happyClients, suffix: "+", label: "Clients served" },
+    { value: studio.projectsCompleted, suffix: "+", label: "Projects delivered" },
+    { value: studio.awardsWon, suffix: "+", label: "Design awards" },
   ];
 
   return (

@@ -145,6 +145,9 @@ export const TIERS: Record<CityTier, { label: string; multiplier: number; color:
 
 /* ─── Investment Presets ─── */
 
+/** Bounds of the investment slider. A budget below `min` means "not chosen yet". */
+export const BUDGET_SLIDER = { min: 1500000, max: 150000000, step: 500000 } as const;
+
 export const INVESTMENT_PRESETS = [
     { label: "Essential", range: "₹40–60 L", value: 5000000, color: "#80cbc4" },
     { label: "Premium", range: "₹80 L – 1.5 Cr", value: 12000000, color: "#64b5f6" },

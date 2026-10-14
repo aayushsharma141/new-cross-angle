@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { percentChange, describeChange, trendDirection } from "@/lib/trend";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminKPI } from "@/components/admin/dashboard/AdminKPI";
 import { LeadFunnelChart } from "@/components/admin/analytics/LeadFunnelChart";
@@ -63,7 +64,7 @@ const SalesTab = ({ date }: SalesTabProps) => {
       const avgLeadScore = leads.length > 0 ? Math.round(leads.reduce((sum, l) => sum + (l.lead_score || 0), 0) / leads.length) : 0;
 
       const prevCount = prevLeadsRes.count || 0;
-      const leadsTrend = prevCount > 0 ? Math.round(((totalLeads - prevCount) / prevCount) * 100) : totalLeads > 0 ? 100 : 0;
+      const leadsTrend = percentChange(totalLeads, prevCount);
 
       return {
         totalLeads,
@@ -158,8 +159,8 @@ const SalesTab = ({ date }: SalesTabProps) => {
           title="Estimator Submissions"
           value={fmt(stats?.estimatorLeads)}
           numericValue={stats?.estimatorLeads}
-          change={stats ? `${stats.leadsTrend > 0 ? "+" : ""}${stats.leadsTrend}% vs prev` : "…"}
-          trend={(stats?.leadsTrend || 0) > 0 ? "up" : "neutral"}
+          change={stats ? describeChange(stats.leadsTrend, "vs prev") : "…"}
+          trend={trendDirection(stats?.leadsTrend ?? null)}
           icon={Layers}
           variant="gold"
           isLoading={isLoading}
@@ -168,7 +169,7 @@ const SalesTab = ({ date }: SalesTabProps) => {
           title="Pipeline Value"
           value={`₹${((stats?.pipelineValue || 0) / 100000).toFixed(1)}L`}
           change={`Avg ₹${fmt(stats?.avgEstimate || 0)} per lead`}
-          trend="up"
+          trend="neutral"
           icon={TrendingUp}
           variant="accent"
           isLoading={isLoading}

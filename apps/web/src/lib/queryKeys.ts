@@ -44,4 +44,20 @@ export const queryKeys = {
     // Full row — admin dashboard only.
     admin: ["siteSettings", "admin"] as const,
   },
+  siteContent: {
+    // Published blocks — read by the public site.
+    published: ["siteContent", "published"] as const,
+    // Drafts and version history — super admin editor only.
+    drafts: ["siteContent", "drafts"] as const,
+    versions: (key: string) => ["siteContent", "versions", key] as const,
+  },
+  integrations: {
+    supabaseProbe: ["integrations", "supabaseProbe"] as const,
+    email: ["integrations", "email"] as const,
+    webhooks: ["integrations", "webhooks"] as const,
+    analytics: ["integrations", "analytics"] as const,
+    media: ["integrations", "media"] as const,
+    lastSeen: ["integrations", "lastSeen"] as const,
+    secrets: ["integrations", "secrets"] as const,
+  },
 } as const;

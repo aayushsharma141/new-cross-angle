@@ -1,20 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
-import {
-    Activity,
-    Users,
-    FileText,
-    BookOpen,
-    Sparkles,
-    Calculator,
-    Shield,
-    Settings,
-    type LucideIcon,
-} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 /* ───────────────────────────────────────────────
    Hub Stats — shared between AdminHub and AdminLayout
    ─────────────────────────────────────────────── */
+/** Media storage quota shown in admin. Single source: change it here when the plan changes. */
+export const STORAGE_TOTAL_GB = 20;
+
 export interface HubStats {
     actionsToday: number;
     newLeads: number;
@@ -30,20 +22,16 @@ export interface HubStats {
     signedCount: number;
     quizLeadsCount: number;
     estimatorLeadsCount: number;
-}
-
-export interface ModuleTileProps {
-    title: string;
-    description: string;
-    icon: LucideIcon;
-    href: string;
-    index: number;
-    badge?: string;
-    featured?: boolean;
-    urgent?: boolean;
-    insight?: { type: "alert" | "info" | "success"; text: string };
-    primaryAction?: { label: string; href: string };
-    quickStats?: { label: string; value: string | number }[];
+    imageCount: number;
+    videoCount: number;
+    activeTestimonials: number;
+    publishedPosts: number;
+    draftPosts: number;
+    /** Sum of blog_posts.view_count, incremented by record_blog_event on article views. */
+    blogViews: number;
+    roleCounts: Record<string, number>;
+    /** At least one query failed, so some zeros above mean "unknown", not "none". */
+    partialFailure: boolean;
 }
 
 async function fetchHubStats(): Promise<HubStats> {
@@ -56,6 +44,9 @@ async function fetchHubStats(): Promise<HubStats> {
         { count: newLeadCount, error: e3 },
         { data: mediaData, error: e4 },
         { data: leadsData, error: e5 },
+        { data: blogData, error: e6 },
+        { count: testimonialCount, error: e7 },
+        { data: roleData, error: e8 },
     ] = await Promise.all([
         supabase
             .from("lead_activities")
@@ -69,17 +60,37 @@ async function fetchHubStats(): Promise<HubStats> {
             .from("leads")
             .select("*", { count: "exact", head: true })
             .eq("status", "new"),
-        supabase.from("media_files").select("size_bytes"),
+        supabase.from("media_files").select("size_bytes, mime_type"),
         supabase
             .from("leads")
             .select("status, lead_source, estimated_min"),
+        supabase.from("blog_posts").select("status, view_count"),
+        supabase
+            .from("testimonials")
+            .select("*", { count: "exact", head: true })
+            .eq("active", true),
+        supabase.from("user_roles").select("role"),
     ]);
 
-    if (e1 || e2 || e3 || e4 || e5) {
-        console.error("Hub stats partial failure", { e1, e2, e3, e4, e5 });
+    const partialFailure = Boolean(e1 || e2 || e3 || e4 || e5 || e6 || e7 || e8);
+    if (partialFailure) {
+        console.error("Hub stats partial failure", { e1, e2, e3, e4, e5, e6, e7, e8 });
     }
 
-    const totalBytes = (mediaData ?? []).reduce(
+    const media = mediaData ?? [];
+    const imageCount = media.filter(m => m.mime_type?.startsWith("image/")).length;
+    const videoCount = media.filter(m => m.mime_type?.startsWith("video/")).length;
+
+    const posts = blogData ?? [];
+    const published = posts.filter(p => p.status === "published");
+    const blogViews = published.reduce((sum, p) => sum + (p.view_count ?? 0), 0);
+
+    const roleCounts = (roleData ?? []).reduce<Record<string, number>>((acc, r) => {
+        acc[r.role] = (acc[r.role] ?? 0) + 1;
+        return acc;
+    }, {});
+
+    const totalBytes = media.reduce(
         (sum: number, m: { size_bytes: number | null }) => sum + (m.size_bytes ?? 0),
         0
     );
@@ -97,15 +108,16 @@ async function fetchHubStats(): Promise<HubStats> {
     const quizLeadsCount = leads.filter(l => l.lead_source === "style_quiz" || l.lead_source === "aesthetic_discovery_engine").length;
     const estimatorLeadsCount = leads.filter(l => l.lead_source === "estimator").length;
 
+    // Open deals only: won/lost estimates are no longer pipeline.
     const pipelineValue = leads
-        .filter(l => l.lead_source === "estimator")
+        .filter(l => l.lead_source === "estimator" && l.status !== "won" && l.status !== "lost")
         .reduce((sum: number, l) => sum + (Number(l.estimated_min) || 0), 0);
 
     return {
         actionsToday: (activityCount ?? 0) + (versionCount ?? 0),
         newLeads: newLeadCount ?? 0,
         storageUsedGB: usedGB,
-        storageTotalGB: 20,
+        storageTotalGB: STORAGE_TOTAL_GB,
         pipelineValue,
         totalLeads,
         wonLeads,
@@ -116,6 +128,14 @@ async function fetchHubStats(): Promise<HubStats> {
         signedCount,
         quizLeadsCount,
         estimatorLeadsCount,
+        imageCount,
+        videoCount,
+        activeTestimonials: testimonialCount ?? 0,
+        publishedPosts: published.length,
+        draftPosts: posts.filter(p => p.status === "draft").length,
+        blogViews,
+        roleCounts,
+        partialFailure,
     };
 }
 
@@ -123,7 +143,7 @@ const DEFAULT_STATS: HubStats = {
     actionsToday: 0,
     newLeads: 0,
     storageUsedGB: 0,
-    storageTotalGB: 20,
+    storageTotalGB: STORAGE_TOTAL_GB,
     pipelineValue: 0,
     totalLeads: 0,
     wonLeads: 0,
@@ -134,16 +154,30 @@ const DEFAULT_STATS: HubStats = {
     signedCount: 0,
     quizLeadsCount: 0,
     estimatorLeadsCount: 0,
+    imageCount: 0,
+    videoCount: 0,
+    activeTestimonials: 0,
+    publishedPosts: 0,
+    draftPosts: 0,
+    blogViews: 0,
+    roleCounts: {},
+    partialFailure: false,
 };
 
 export function useHubStats() {
-    const { data, isFetching, refetch } = useQuery({
+    const { data, isFetching, isError, isPending, refetch } = useQuery({
         queryKey: ["hub-stats"],
         queryFn: fetchHubStats,
         refetchInterval: 60_000,
     });
 
-    return { stats: data ?? DEFAULT_STATS, isRefreshing: isFetching, refresh: refetch };
+    return {
+        stats: data ?? DEFAULT_STATS,
+        isRefreshing: isFetching,
+        isLoading: isPending,
+        hasError: isError || Boolean(data?.partialFailure),
+        refresh: refetch,
+    };
 }
 
 export const formatStorage = (usedGB: number): string => {
@@ -151,131 +185,3 @@ export const formatStorage = (usedGB: number): string => {
     if (usedGB < 1) return `${(usedGB * 1024).toFixed(1)} MB`;
     return `${usedGB.toFixed(1)} GB`;
 };
-
-export const getModules = (
-    stats: HubStats
-): (Omit<ModuleTileProps, "index"> & { allowedRoles?: string[] })[] => [
-    {
-        title: "Intelligence Hub",
-        description: "Website activity, server health, and business analytics in one view.",
-        icon: Activity,
-        href: "/admin/dashboard",
-        badge: "Control",
-        featured: true,
-        quickStats: [
-            { label: "Today's Activity", value: stats.actionsToday },
-            { label: "System Status", value: "Optimal" },
-        ],
-        insight: { type: "success", text: "All systems operational" },
-        primaryAction: { label: "View Dashboard", href: "/admin/dashboard" },
-    },
-    {
-        title: "CRM",
-        description: "Lead pipeline management. Track high-intent enquiries and client details.",
-        icon: Users,
-        href: "/admin/crm/leads",
-        allowedRoles: ["super_admin", "admin"],
-        urgent: stats.newLeads > 0,
-        insight:
-            stats.newLeads > 0
-                ? { type: "alert", text: `${stats.newLeads} new lead${stats.newLeads > 1 ? "s" : ""} waiting` }
-                : { type: "success", text: "Pipeline up to date" },
-        quickStats: [
-            {
-                label: "Pipeline",
-                value:
-                    stats.pipelineValue > 0
-                        ? `₹${(stats.pipelineValue / 100000).toFixed(1)}L`
-                        : "₹0",
-            },
-            { label: "New Leads", value: stats.newLeads },
-        ],
-        primaryAction:
-            stats.newLeads > 0
-                ? { label: "Review Leads", href: "/admin/crm/leads?filter=new" }
-                : { label: "View Pipeline", href: "/admin/crm/leads" },
-    },
-    {
-        title: "Content Management",
-        description: "Portfolio, services, media assets, and testimonials management.",
-        icon: FileText,
-        href: "/admin/cms/portfolio",
-        allowedRoles: ["super_admin", "admin"],
-        insight:
-            stats.actionsToday > 0
-                ? { type: "info", text: `${stats.actionsToday} content edits today` }
-                : { type: "info", text: "Content up to date" },
-        quickStats: [
-            { label: "Storage Used", value: `${stats.storageUsedGB < 0.01 ? "0" : stats.storageUsedGB.toFixed(1)}GB` },
-            { label: "Quota", value: `${stats.storageTotalGB}GB` },
-        ],
-        primaryAction: { label: "Media Library", href: "/admin/cms/media-library" },
-    },
-    {
-        title: "Blog Analytics",
-        description: "Publish articles, manage drafts, and track content performance.",
-        icon: BookOpen,
-        href: "/admin/blog/overview",
-        allowedRoles: ["super_admin", "admin"],
-        featured: true,
-        quickStats: [
-            { label: "Published", value: "Active" },
-            { label: "Analytics", value: "↑ On" },
-        ],
-        insight: { type: "info", text: "Content intelligence ready" },
-        primaryAction: { label: "Overview", href: "/admin/blog/overview" },
-    },
-    {
-        title: "Discovery Engine",
-        description: "Analytics and style funnel breakdown for the interactive quiz.",
-        icon: Sparkles,
-        href: "/admin/discovery/quiz-analytics",
-        allowedRoles: ["super_admin", "admin"],
-        quickStats: [
-            { label: "Funnel", value: "Active" },
-            { label: "Leads", value: stats.newLeads },
-        ],
-        insight: { type: "info", text: "Style quiz converting" },
-        primaryAction: { label: "View Funnel", href: "/admin/discovery/quiz-analytics" },
-    },
-    {
-        title: "Estimator Engine",
-        description: "Pricing configuration, stage builder, and project scope logic.",
-        icon: Calculator,
-        href: "/admin/estimator/estimate-leads",
-        allowedRoles: ["super_admin", "admin"],
-        quickStats: [
-            { label: "Pipeline", value: stats.pipelineValue > 0 ? `₹${(stats.pipelineValue / 100000).toFixed(1)}L` : "₹0" },
-            { label: "Submissions", value: "Live" },
-        ],
-        insight: { type: "info", text: "Pricing engine online" },
-        primaryAction: { label: "Estimate Leads", href: "/admin/estimator/estimate-leads" },
-    },
-    {
-        title: "User Access",
-        description: "Manage admin users, roles, security credentials, and permissions.",
-        icon: Shield,
-        href: "/admin/user-access/users",
-        allowedRoles: ["super_admin", "admin"],
-        quickStats: [
-            { label: "Login Security", value: "Active" },
-            { label: "2-Step Verify", value: "On" },
-        ],
-        insight: { type: "success", text: "Access controls enforced" },
-        primaryAction: { label: "Manage Users", href: "/admin/user-access/users" },
-    },
-    {
-        title: "System Settings",
-        description: "Global site config, integrations, audit logs, and diagnostics.",
-        icon: Settings,
-        href: "/admin/system/settings",
-        allowedRoles: ["super_admin"],
-        featured: true,
-        quickStats: [
-            { label: "Integrations", value: "Live" },
-            { label: "Audit Trail", value: "On" },
-        ],
-        insight: { type: "success", text: "All integrations active" },
-        primaryAction: { label: "Open Settings", href: "/admin/system/settings" },
-    },
-];
