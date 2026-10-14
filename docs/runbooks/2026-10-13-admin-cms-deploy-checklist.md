@@ -20,8 +20,13 @@ Project ref: `iuuivmwqodefdrrrewol`.
 
 ## 1. Migration to apply
 
-Apply **only** `supabase/migrations/20261013000000_site_content.sql`. It is additive: it
-creates new tables, policies and functions and touches no existing data.
+Apply **only** `supabase/migrations/20261013000000_site_content.sql`. It runs in one
+transaction. Production already has an unrelated, empty legacy `public.site_content`
+(`section_key`, `title`, `content` …, from the 2026-01 dump, unused by the app); the migration
+renames it to `site_content_legacy` (with its constraints) and then creates the new tables. It
+fails loudly, and changes nothing, if the resulting tables do not have the expected columns.
+Tested on in-memory Postgres: legacy present, fresh database, applied twice, and an unexpected
+table shape (rolls back).
 
 Do **not** use `supabase db push`: it would also try to apply every older migration the
 remote history does not list (this repo's migrations are a partial changelog; see ADR 0003).
@@ -32,16 +37,31 @@ npx supabase db query --linked -f supabase/migrations/20261013000000_site_conten
 npx supabase migration repair --linked --status applied 20261013000000
 ```
 
-Rollback if needed (new objects only):
+Rollback if needed (drops the new objects, then puts the legacy table back):
 
 ```sql
+begin;
 drop function if exists public.save_site_content_draft(text, jsonb), public.discard_site_content_draft(text),
   public.publish_site_content(text), public.revert_site_content(text, uuid), public.reset_site_content(text);
 drop table if exists public.site_content_versions, public.site_content_drafts, public.site_content;
+alter table if exists public.site_content_legacy rename to site_content;
+alter table public.site_content rename constraint site_content_legacy_pkey to site_content_pkey;
+alter table public.site_content rename constraint site_content_legacy_section_key_key to site_content_section_key_key;
+alter table public.site_content rename constraint site_content_legacy_updated_by_fkey to site_content_updated_by_fkey;
+commit;
 ```
 
-**Confirm:** `select count(*) from site_content;` returns 0, and an anonymous request for
-`site_content_drafts` returns nothing.
+**Confirm** (a row count alone is not enough: the old table also has 0 rows):
+
+```sql
+select string_agg(column_name, ',' order by ordinal_position) from information_schema.columns
+where table_schema = 'public' and table_name = 'site_content';
+-- expected: key,value,published_at,published_by
+select to_regclass('public.site_content_legacy');  -- expected: site_content_legacy
+```
+
+Then sign in as a super admin, save and publish one Site Content block, and confirm the public
+page shows it. An anonymous request for `site_content_drafts` must return nothing.
 
 The earlier PostHog-schedule migration was removed from this PR: a job with that name already
 exists, and replacing it with a different settings name would have broken it further.

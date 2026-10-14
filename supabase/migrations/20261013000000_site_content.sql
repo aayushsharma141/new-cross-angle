@@ -11,6 +11,33 @@
 -- This file is NOT applied automatically. Review it, then apply it to the linked project
 -- (production is the schema source of truth — see .decisions/0003).
 
+BEGIN;
+
+-- ─── Move the legacy table out of the way ─────────────────────────────────────
+-- Production already has an unrelated `public.site_content` from the 2026-01 pg_dump
+-- (section_key / title / content …, 0 rows, unused by the app). Without this step the
+-- `CREATE TABLE IF NOT EXISTS` below would silently keep that table and every CMS save
+-- would fail. Rename it (and its constraints, whose backing indexes are schema-scoped
+-- and would collide with the new table's) instead of dropping it, so nothing is lost.
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'site_content' AND column_name = 'section_key'
+  ) THEN
+    IF to_regclass('public.site_content_legacy') IS NOT NULL THEN
+      RAISE EXCEPTION 'public.site_content_legacy already exists; resolve manually before applying';
+    END IF;
+    RAISE NOTICE 'Renaming legacy public.site_content (% rows) to site_content_legacy',
+      (SELECT count(*) FROM public.site_content);
+    ALTER TABLE public.site_content RENAME TO site_content_legacy;
+    ALTER TABLE public.site_content_legacy RENAME CONSTRAINT site_content_pkey TO site_content_legacy_pkey;
+    ALTER TABLE public.site_content_legacy RENAME CONSTRAINT site_content_section_key_key TO site_content_legacy_section_key_key;
+    ALTER TABLE public.site_content_legacy RENAME CONSTRAINT site_content_updated_by_fkey TO site_content_legacy_updated_by_fkey;
+  END IF;
+END
+$$;
+
 -- ─── Tables ───────────────────────────────────────────────────────────────────
 
 CREATE TABLE IF NOT EXISTS public.site_content (
@@ -36,6 +63,28 @@ CREATE TABLE IF NOT EXISTS public.site_content_versions (
   replaced_at  timestamptz NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS idx_site_content_versions_key ON public.site_content_versions (key, replaced_at DESC);
+
+-- Fail loudly if any table still has an unexpected shape (e.g. a different pre-existing
+-- table the IF NOT EXISTS guards skipped), rather than "succeeding" with a broken CMS.
+DO $$
+DECLARE
+  missing text;
+BEGIN
+  SELECT string_agg(t || '.' || c, ', ') INTO missing
+  FROM (VALUES
+    ('site_content', 'key'), ('site_content', 'value'), ('site_content', 'published_at'),
+    ('site_content_drafts', 'key'), ('site_content_drafts', 'value'),
+    ('site_content_versions', 'key'), ('site_content_versions', 'replaced_at')
+  ) AS expected(t, c)
+  WHERE NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = expected.t AND column_name = expected.c
+  );
+  IF missing IS NOT NULL THEN
+    RAISE EXCEPTION 'site_content tables have an unexpected shape; missing columns: %', missing;
+  END IF;
+END
+$$;
 
 -- ─── Row level security ───────────────────────────────────────────────────────
 
@@ -184,3 +233,5 @@ GRANT EXECUTE ON FUNCTION public.save_site_content_draft(text, jsonb),
                           public.publish_site_content(text),
                           public.revert_site_content(text, uuid),
                           public.reset_site_content(text) TO authenticated;
+
+COMMIT;
