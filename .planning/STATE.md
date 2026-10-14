@@ -743,3 +743,5 @@ Restored in `0e38cd64`.
 - New Phase 40 "Admin Panel Remediation" (Track C) added to ROADMAP.md; decisions in .planning/phases/40-admin-panel-remediation/40-CONTEXT.md.
 - Key calls: email alert = default + admin-managed extras; auto-reply to all but newsletter; Telegram list read by function (chat 1228126069); both reminder jobs on; real 2FA for everyone + idle logout; Projects/Services SEO + page share image/noindex; editable menus/footer/form wording; Lead Workspace lock saves real data; admin stays desktop-only.
 - Next: /gsd-plan-phase 40
+- Phase 40 UI-SPEC written and checker-approved (non-blocking FLAGs recorded in the file). Research: 40-RESEARCH.md; validation: 40-VALIDATION.md. Next: /gsd-plan-phase 40 (UI gate now satisfied).
+- Open before shipping Phase 40 (from research): site_content migration fixed for the legacy table (2d98e521); enforce_2fa is already true in prod with 0 enrolled factors (rollout must enrol-at-login); handle-new-lead/stale-lead-checker/weekly-report select leads.budget_value_inr which does not exist live; auto-reply-lead unauthenticated.
