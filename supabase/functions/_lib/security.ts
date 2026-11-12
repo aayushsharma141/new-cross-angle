@@ -20,6 +20,7 @@
 
 // @deno-types="https://esm.sh/@supabase/supabase-js@2.45.4/dist/module/index.d.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
+import { hasAnyCmsRole } from "./rbac.ts";
 
 // ─── Sentry Deno SDK ──────────────────────────────────────────────────────────
 // Uses the official Sentry Deno/Cloudflare Workers SDK.
@@ -440,6 +441,37 @@ export async function verifyAdmin(
 
     if (roleError || !roleData) {
         return { user: null, error: "Forbidden: admin role required" };
+    }
+
+    return { user: auth.user, error: null };
+}
+
+/**
+ * Verifies auth AND checks that the caller can write CMS content
+ * (super_admin, admin or editor) — the same rule as `public.is_cms_editor()`,
+ * which guards the DAM upload RPCs. Use it for endpoints the CMS media
+ * workflow calls, so an editor allowed by the database is not refused here.
+ */
+export async function verifyCmsEditor(
+    req: Request,
+): Promise<AdminAuthResult | { user: null; error: string }> {
+    const auth = await verifyAuth(req);
+    if (!auth.user) {
+        return { user: null, error: auth.error ?? "Unauthorized" };
+    }
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+    const adminClient = createClient(supabaseUrl, serviceKey);
+
+    // All rows, not maybeSingle(): a user may hold several roles.
+    const { data: roleRows, error: roleError } = await adminClient
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", auth.user.id);
+
+    if (roleError || !hasAnyCmsRole(roleRows)) {
+        return { user: null, error: "Forbidden: CMS editor role required" };
     }
 
     return { user: auth.user, error: null };

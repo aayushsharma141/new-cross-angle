@@ -1,7 +1,6 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 import {
   handlePreflight,
-  verifyAdmin,
+  verifyCmsEditor,
   badRequestResponse,
   serverErrorResponse,
   okResponse,
@@ -12,7 +11,6 @@ import {
 
 const FN = "imagekit-upload";
 const IMAGEKIT_PRIVATE_KEY = Deno.env.get("IMAGEKIT_PRIVATE_KEY");
-const IMAGEKIT_PUBLIC_KEY = Deno.env.get("IMAGEKIT_PUBLIC_KEY");
 
 interface UploadRequest {
   action: "upload" | "delete" | "getAuth" | "uploadUrl" | "move";
@@ -31,7 +29,11 @@ Deno.serve(async (req) => {
 
   const requestId = getRequestId(req);
 
-  const auth = await verifyAdmin(req);
+  // CMS editors upload through here (the DAM RPCs allow them via
+  // is_cms_editor). Requiring admin let an editor's upload create the asset
+  // row, then fail at storage and roll back. Delete must match: the upload
+  // saga's rollback and the media library's delete both call it.
+  const auth = await verifyCmsEditor(req);
   if (!auth.user) {
     return unauthorizedResponse(req, auth.error ?? "Unauthorized");
   }
@@ -114,12 +116,6 @@ async function handleUpload(
 
   const ikFile = await ikRes.json();
   const providerPath = normalizeProviderPath(ikFile.filePath || `${folderPath}/${uniqueName}`);
-  const fileRecordName = `imagekit:${providerPath}`;
-
-  // Determine mime type from the file data header
-  const mimeMatch = fileData.match(/^data:([^;]+);/);
-  const mimeType = mimeMatch ? mimeMatch[1] : "application/octet-stream";
-
 
 
   structuredLog("info", FN, "File uploaded to ImageKit", {

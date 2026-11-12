@@ -58,6 +58,16 @@ export function hasCmsAccess(role: string | null | undefined): boolean {
   return r === "super_admin" || r === "admin" || r === "editor";
 }
 
+/**
+ * True if any of a user's `user_roles` rows grants CMS access. A user can hold
+ * more than one row; unknown or null roles grant nothing.
+ */
+export function hasAnyCmsRole(
+  rows: ReadonlyArray<{ role: string | null }> | null | undefined,
+): boolean {
+  return (rows ?? []).some((row) => isAppRole(row.role) && hasCmsAccess(row.role));
+}
+
 /** True if role can read CRM/leads (super_admin + admin + viewer). */
 export function hasCrmAccess(role: string | null | undefined): boolean {
   const r = normalizeRole(role);
