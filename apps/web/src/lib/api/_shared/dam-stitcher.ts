@@ -63,7 +63,11 @@ export const fetchAndStitchDamUsages = async (
       };
 
       if (entityType === "project") {
-        const coverAsset = getAsset("cover");
+        // "cover" is the canonical role (DAM v3 backfill, and the admin form
+        // since it was corrected). "cover_image" is what the admin form used
+        // to write; those rows are still read so covers picked before the
+        // correction are not lost.
+        const coverAsset = getAsset("cover") ?? getAsset("cover_image");
         if (coverAsset?.url) {
           item.cover_image_url = coverAsset.url;
           (item as SupabaseItem & { coverAsset?: AssetVersion }).coverAsset = coverAsset;

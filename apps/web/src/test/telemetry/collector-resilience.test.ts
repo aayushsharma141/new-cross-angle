@@ -5,11 +5,6 @@ import { Logger } from '../../analytics/telemetry/Logger';
 
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
-    auth: {
-      getSession: vi.fn().mockResolvedValue({
-        data: { session: { user: { id: 'test-user' } } },
-      }),
-    },
     rpc: vi.fn().mockResolvedValue({ data: 'resilience-asset-123', error: null }),
     from: vi.fn().mockReturnValue({
       insert: vi.fn().mockResolvedValue({ error: null }),

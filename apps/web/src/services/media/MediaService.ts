@@ -41,9 +41,6 @@ export const MediaService = {
   async upload(options: UploadOptions): Promise<UploadResult> {
     const { file, folderId, onProgress } = options;
 
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) throw new Error("Not authenticated");
-
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = async () => {
@@ -126,17 +123,15 @@ export const MediaService = {
     return { succeeded: fileIds.length, total: fileIds.length, errors: [] };
   },
 
-  async exportZip(fileIds: string[], folderIds: string[] = []): Promise<void> {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) throw new Error("Not authenticated");
+  // The zip transfers use fetch directly (binary bodies), against the same
+  // /api/supabase proxy the client is built on. The proxy attaches the
+  // Authorization header from the HTTP-only cookie; the browser holds no token.
 
+  async exportZip(fileIds: string[], folderIds: string[] = []): Promise<void> {
     const supabaseUrl = (supabase as unknown as { supabaseUrl: string }).supabaseUrl;
     const resp = await fetch(`${supabaseUrl}/functions/v1/media-export`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${session.access_token}`,
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ fileIds, folderIds }),
     });
 
@@ -159,9 +154,6 @@ export const MediaService = {
   },
 
   async importZip(zipFile: File, targetFolderId: string | null): Promise<{ message: string }> {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) throw new Error("Not authenticated");
-
     const supabaseUrl = (supabase as unknown as { supabaseUrl: string }).supabaseUrl;
     const form = new FormData();
     form.append("file", zipFile);
@@ -169,7 +161,6 @@ export const MediaService = {
 
     const resp = await fetch(`${supabaseUrl}/functions/v1/media-import`, {
       method: "POST",
-      headers: { Authorization: `Bearer ${session.access_token}` },
       body: form,
     });
 

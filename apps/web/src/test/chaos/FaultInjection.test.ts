@@ -46,11 +46,6 @@ describe('Chaos & Fault Injection (Platform Reliability)', () => {
     const { ImageKitProvider } = await import('@/services/media/providers/ImageKitProvider');
     const { supabase } = await import('@/integrations/supabase/client');
     
-    vi.spyOn(supabase.auth, 'getSession').mockResolvedValue({
-      data: { session: { user: { id: '123' } } } as any,
-      error: null
-    });
-    
     vi.spyOn(supabase, 'rpc').mockResolvedValue({
       data: 'fake-asset-id',
       error: null
@@ -90,12 +85,6 @@ describe('Chaos & Fault Injection (Platform Reliability)', () => {
     const { ImageKitProvider } = await import('@/services/media/providers/ImageKitProvider');
     const { supabase } = await import('@/integrations/supabase/client');
     
-    // Mock the session
-    vi.spyOn(supabase.auth, 'getSession').mockResolvedValue({
-      data: { session: { user: { id: '123' } } } as any,
-      error: null
-    });
-    
     // Mock the RPC creation so it doesn't fail before hitting ImageKit
     vi.spyOn(supabase, 'rpc').mockResolvedValue({
       data: 'fake-asset-id',
@@ -121,11 +110,6 @@ describe('Chaos & Fault Injection (Platform Reliability)', () => {
     const { UploadOrchestrator } = await import('@/services/media/UploadOrchestrator');
     const { ImageKitProvider } = await import('@/services/media/providers/ImageKitProvider');
     const { supabase } = await import('@/integrations/supabase/client');
-    
-    vi.spyOn(supabase.auth, 'getSession').mockResolvedValue({
-      data: { session: { user: { id: '123' } } } as any,
-      error: null
-    });
     
     vi.spyOn(supabase, 'rpc').mockImplementation((async (fnName: string) => {
       if (fnName === 'rpc_create_uploading_asset') {
@@ -169,11 +153,6 @@ describe('Chaos & Fault Injection (Platform Reliability)', () => {
     const { UploadOrchestrator } = await import('@/services/media/UploadOrchestrator');
     const { ImageKitProvider } = await import('@/services/media/providers/ImageKitProvider');
     const { supabase } = await import('@/integrations/supabase/client');
-    
-    vi.spyOn(supabase.auth, 'getSession').mockResolvedValue({
-      data: { session: { user: { id: '123' } } } as any,
-      error: null
-    });
     
     vi.spyOn(supabase, 'rpc').mockImplementation((async (fnName: string) => {
       if (fnName === 'rpc_create_uploading_asset') {

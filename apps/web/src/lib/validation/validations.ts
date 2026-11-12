@@ -1,6 +1,26 @@
 import { z } from "zod";
 
 // ==========================================
+// SHARED FIELDS
+// ==========================================
+/**
+ * An image reference as the CMS stores it: an absolute URL, or a site-relative
+ * path. Site-local assets under `public/` are stored as "/images/..." and
+ * served as-is (see lib/cdn.ts), and existing rows carry such paths, so an
+ * editor must be able to save a record without replacing its image.
+ */
+export const imageRefSchema = z
+    .string()
+    .max(1000)
+    .refine(
+        (value) =>
+            value === "" ||
+            /^\/(?!\/)/.test(value) ||
+            z.string().url().safeParse(value).success,
+        "Must be a valid URL or a path starting with /",
+    );
+
+// ==========================================
 // BLOG POST VALIDATION
 // ==========================================
 const blogStatusValues = ["draft", "published", "archived"] as const;
@@ -11,7 +31,7 @@ export const blogPostSchema = z.object({
         .regex(/^[a-z0-9-]+$/, "Slug can only contain lowercase letters, numbers, and hyphens"),
     excerpt: z.string().max(500, "Excerpt is too long").optional().default(""),
     content: z.string().max(50000, "Content is too long").optional().default(""),
-    cover_image: z.string().url("Must be a valid URL").max(1000).optional().or(z.literal("")),
+    cover_image: imageRefSchema.optional(),
     is_published: z.boolean().default(false),
     status: z.enum(blogStatusValues).default("draft"),
 });
@@ -70,7 +90,7 @@ export const portfolioSchema = z.object({
     duration: z.string().max(100).optional().default(""),
     style: z.string().max(100).optional().default(""),
     year_completed: z.number().int().min(1900).max(2100).default(new Date().getFullYear()),
-    cover_image_url: z.string().url("Must be a valid URL").max(1000).optional().or(z.literal("")),
+    cover_image_url: imageRefSchema.optional(),
     brief: z.string().max(2000).optional().default(""),
     approach: z.string().max(5000).optional().default(""),
     video_url: z.string().url("Must be a valid URL").max(1000).optional().or(z.literal("")),

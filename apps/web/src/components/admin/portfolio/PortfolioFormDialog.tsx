@@ -45,7 +45,9 @@ interface ProjectRow {
     duration?: string | null;
     style_tags?: string[] | null;
     year_completed?: number | null;
-    cover_image_url?: string | null;
+    // The cover URL column. DAM v3 renamed `cover_image_url` to this; there is
+    // no `cover_image_url` column on `projects`.
+    deprecated_cover_image_url?: string | null;
     description?: unknown;
     featured?: boolean | null;
     status?: string | null;
@@ -125,7 +127,7 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
                 duration: desc.duration || "",
                 style: (initialData.style_tags && initialData.style_tags[0]) || "", // Taking first tag
                 year_completed: initialData.year_completed || new Date().getFullYear(),
-                cover_image_url: initialData.cover_image_url || "",
+                cover_image_url: initialData.deprecated_cover_image_url || "",
                 cover_asset_id: null,
                 brief: desc.brief || "",
                 approach: desc.approach || "",
@@ -265,11 +267,20 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
             // After successful save, sync asset relationships if they were changed
             if (finalProjectId) {
                 if (formData.cover_asset_id) {
+                    // "cover" is the role the public site reads (dam-stitcher)
+                    // and the DAM v3 backfill wrote. This form used to bind
+                    // "cover_image", which nothing read; drop any such row so
+                    // the replaced asset is not left marked as in use.
+                    await AssetUsageService.removeUsage({
+                        entityType: "project",
+                        entityId: finalProjectId,
+                        role: "cover_image"
+                    });
                     await AssetUsageService.replaceUsage({
                         assetId: formData.cover_asset_id,
                         entityType: "project",
                         entityId: finalProjectId,
-                        role: "cover_image"
+                        role: "cover"
                     });
                 }
                 if (formData.hero_asset_id) {

@@ -147,9 +147,9 @@ export function BlogList({ refreshTrigger, onEdit, onNew, searchQuery = "", onSe
                   
                   {/* Image */}
                   <div className="w-[80px] h-[60px] rounded-lg bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] flex items-center justify-center shrink-0 overflow-hidden relative">
-                    {post.cover_image_url ? (
+                    {post.deprecated_cover_image_url ? (
                       <Image
-                        src={post.cover_image_url}
+                        src={post.deprecated_cover_image_url}
                         alt={post.title}
                         width={160}
                         quality={72}

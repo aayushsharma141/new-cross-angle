@@ -45,8 +45,13 @@ export const mapSupabaseToProject = (item: SupabaseItem): Project => {
       details: m.details || "",
     })) || [];
 
-  const heroImageFromDesc =
-    typeof descJson.hero_image_url === "string" ? descJson.hero_image_url : undefined;
+  // The admin form saves the project facts and narrative inside the
+  // `description` JSONB — they are not columns on `projects`. The top-level
+  // reads below remain for rows that carry them directly.
+  const fromDescription = (key: string): string => {
+    const value = descJson[key];
+    return typeof value === "string" ? value : "";
+  };
 
   return {
     id: item.id,
@@ -56,20 +61,28 @@ export const mapSupabaseToProject = (item: SupabaseItem): Project => {
     location: item.location || "Location",
     type: item.type === "commercial" ? "commercial" : "residential",
     category: item.project_categories?.name || item.category || "General",
-    area: item.area || "-",
-    budget: item.budget || "-",
-    duration: item.duration || "-",
+    area: fromDescription("area") || item.area || "-",
+    budget: fromDescription("budget") || item.budget || "-",
+    duration: fromDescription("duration") || item.duration || "-",
     style:
       item.style_tags && Array.isArray(item.style_tags) && item.style_tags.length > 0
         ? item.style_tags.join(", ")
         : item.style || "-",
     year: Number(item.year_completed || item.year || new Date().getFullYear()),
-    heroImage: heroImageFromDesc || item.cover_image_url || item.hero_image || "",
+    // Explicit hero, then the cover bound through asset_usages, then the cover
+    // URL the admin form stores on the row (a pasted URL has no usage row),
+    // then the hero bound through asset_usages.
+    heroImage:
+      fromDescription("hero_image_url") ||
+      item.cover_image_url ||
+      item.deprecated_cover_image_url ||
+      item.hero_image ||
+      "",
     heroAsset: (item as SupabaseItem & { heroAsset?: AssetVersion }).heroAsset,
     coverAsset: (item as SupabaseItem & { coverAsset?: AssetVersion }).coverAsset,
     gallery,
-    brief: item.brief || "",
-    approach: item.approach || "",
+    brief: fromDescription("brief") || item.brief || "",
+    approach: fromDescription("approach") || item.approach || "",
     materials,
     testimonial: item.testimonial_quote
       ? {

@@ -15,6 +15,11 @@ import { useToast } from "@/hooks/useToast";
 import { icons } from "@/design-system/tokens/icons";
 import { BlogPost, BlogFormData, BlogStatus } from "@/types/blog";
 import { blogPostSchema, formatZodErrors } from "@/lib/validation/validations";
+import {
+  blogPostToFormData,
+  resolvePublishedAt,
+  restoreBlogDraft,
+} from "@/components/admin/blogs/blogFormMapping";
 
 interface BlogEditorFormProps {
   post: BlogPost | null;
@@ -43,13 +48,13 @@ export function BlogEditorForm({ post, onSaved, onCancel }: BlogEditorFormProps)
       const savedDraft = localStorage.getItem(`admin_blog_draft_${post.id}`);
       if (savedDraft) {
         try {
-          setFormData(JSON.parse(savedDraft));
+          setFormData(restoreBlogDraft(JSON.parse(savedDraft), post));
           toast({ title: "Draft Restored", description: "Restored your unsaved changes." });
         } catch {
-          initializeForm(post);
+          setFormData(blogPostToFormData(post));
         }
       } else {
-        initializeForm(post);
+        setFormData(blogPostToFormData(post));
       }
     } else {
       const savedDraft = localStorage.getItem("admin_blog_draft_new");
@@ -66,21 +71,6 @@ export function BlogEditorForm({ post, onSaved, onCancel }: BlogEditorFormProps)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [post]);
-
-  const initializeForm = (p: BlogPost) => {
-    setFormData({
-      title: p.title,
-      slug: p.slug,
-      excerpt: p.excerpt || "",
-      content: typeof p.content === 'string' ? p.content : "",
-      cover_image_url: p.cover_image_url || "",
-      status: (p.status as BlogStatus) || "draft",
-      featured: p.featured ?? false,
-      seo_title: p.seo_title ?? "",
-      seo_description: p.seo_description ?? "",
-      tags: p.tags?.join(", ") ?? "",
-    });
-  };
 
   const resetForm = () => {
     setFormData({
@@ -154,7 +144,7 @@ export function BlogEditorForm({ post, onSaved, onCancel }: BlogEditorFormProps)
         seo_title: formData.seo_title || null,
         seo_description: formData.seo_description || null,
         tags: formData.tags ? formData.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
-        published_at: formData.status === 'published' ? new Date().toISOString() : null,
+        published_at: resolvePublishedAt(formData.status, post?.published_at),
         // NOTE: no scheduled_at. Scheduled publishing is not implemented:
         // 20260529180400_blog_revisions_scheduling would add the column, but its
         // IF EXISTS (blog_posts) guard did not pass in production, and nothing

@@ -59,10 +59,11 @@ export class UploadOrchestrator {
 
     const { file, title, domain, entityType, entityId, role, collectionId, onProgress } = options;
 
+    // No client-side session check: under cookie auth the browser client never
+    // holds a session (the access token is an HTTP-only cookie that the
+    // /api/supabase proxy attaches), so supabase.auth.getSession() is always
+    // null here. The RPCs and the imagekit-upload function authorise the caller.
     const uploadPromise = (async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error("Not authenticated");
-
       return new Promise<DamUploadResult>((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = async () => {

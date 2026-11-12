@@ -7,30 +7,30 @@ export type BlogStatus = "draft" | "review" | "published";
  *
  * Derived from the generated row so it cannot silently drift from the schema.
  *
- * `cover_image_url` is NOT a column on `blog_posts` — DAM v3 renamed it to
- * `deprecated_cover_image_url`. It stays optional because the editor still
- * surfaces it, but it reads as undefined at runtime. Declaring it required is
- * what let the double-cast at the fetch site hide the gap.
+ * The cover image is stored in `deprecated_cover_image_url` — DAM v3 renamed
+ * `cover_image_url` to that, and it is still the only place the blog cover
+ * lives (the public blog reads it too). There is no `cover_image_url` column:
+ * a field of that name on this type read as undefined at runtime, so the
+ * editor opened every post with an empty cover and saved null over the stored
+ * one. The editor's own field is `BlogFormData.cover_image_url`.
  * TODO(ADR-0002): source the cover image from asset_usages.
  */
-export interface BlogPost
-  extends Pick<
-    Tables<"blog_posts">,
-    | "id"
-    | "title"
-    | "slug"
-    | "excerpt"
-    | "content"
-    | "status"
-    | "featured"
-    | "seo_title"
-    | "seo_description"
-    | "tags"
-    | "published_at"
-    | "created_at"
-  > {
-  cover_image_url?: string | null;
-}
+export type BlogPost = Pick<
+  Tables<"blog_posts">,
+  | "id"
+  | "title"
+  | "slug"
+  | "excerpt"
+  | "content"
+  | "status"
+  | "featured"
+  | "seo_title"
+  | "seo_description"
+  | "tags"
+  | "published_at"
+  | "created_at"
+  | "deprecated_cover_image_url"
+>;
 
 export interface BlogFormData {
   title: string;
