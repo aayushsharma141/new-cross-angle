@@ -23,7 +23,10 @@ export const imageRefSchema = z
 // ==========================================
 // BLOG POST VALIDATION
 // ==========================================
-const blogStatusValues = ["draft", "published", "archived"] as const;
+// Every status the editor offers (types/blog.ts BlogStatus) must be accepted
+// here, or that status can never be saved. "archived" is kept so posts that
+// already carry it still validate.
+const blogStatusValues = ["draft", "review", "published", "archived"] as const;
 
 export const blogPostSchema = z.object({
     title: z.string().min(3, "Title must be at least 3 characters").max(150, "Title is too long"),

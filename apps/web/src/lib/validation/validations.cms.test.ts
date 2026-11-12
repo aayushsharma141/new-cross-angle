@@ -19,6 +19,29 @@ describe("imageRefSchema", () => {
   });
 });
 
+describe("blog status", () => {
+  // Every option in the editor's status dropdown (BlogEditorForm).
+  it.each(["draft", "review", "published"] as const)("accepts '%s'", (status) => {
+    const result = blogPostSchema.safeParse({
+      title: "Choosing stone for a kitchen",
+      slug: "choosing-stone",
+      status,
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects a status the editor does not offer", () => {
+    const result = blogPostSchema.safeParse({
+      title: "Choosing stone for a kitchen",
+      slug: "choosing-stone",
+      status: "scheduled",
+    });
+
+    expect(result.success).toBe(false);
+  });
+});
+
 describe("cover fields accept what existing rows store", () => {
   it("lets a project with a site-relative cover be saved", () => {
     const result = portfolioSchema.safeParse({
