@@ -69,14 +69,15 @@ export const mapSupabaseToProject = (item: SupabaseItem): Project => {
         ? item.style_tags.join(", ")
         : item.style || "-",
     year: Number(item.year_completed || item.year || new Date().getFullYear()),
-    // Explicit hero, then the cover bound through asset_usages, then the cover
-    // URL the admin form stores on the row (a pasted URL has no usage row),
-    // then the hero bound through asset_usages.
+    // Explicit hero, then the cover and hero bound through asset_usages. The
+    // cover URL the admin form stores on the row comes last: it only fills
+    // the gap left when nothing is bound (a pasted URL has no usage row), so
+    // it never displaces an image that was already being shown.
     heroImage:
       fromDescription("hero_image_url") ||
       item.cover_image_url ||
-      item.deprecated_cover_image_url ||
       item.hero_image ||
+      item.deprecated_cover_image_url ||
       "",
     heroAsset: (item as SupabaseItem & { heroAsset?: AssetVersion }).heroAsset,
     coverAsset: (item as SupabaseItem & { coverAsset?: AssetVersion }).coverAsset,

@@ -92,6 +92,14 @@ describe("mapSupabaseToProject", () => {
       expect(project.heroImage).toBe("https://cdn.example/dam-cover.jpg");
     });
 
+    it("does not let the legacy cover column displace a bound hero", () => {
+      const project = mapSupabaseToProject(
+        rowAsSavedByAdmin({ hero_image: "https://cdn.example/dam-hero.jpg" }),
+      );
+
+      expect(project.heroImage).toBe("https://cdn.example/dam-hero.jpg");
+    });
+
     it("prefers the hero image the admin set explicitly", () => {
       const row = rowAsSavedByAdmin();
       const project = mapSupabaseToProject({
